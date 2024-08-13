@@ -120,5 +120,12 @@ table_columns_name:
     median_sequence_length: "Median length" 
     total_sequences: "M Seqs"
     percent_fails: "% Fails"
+  "FastQC: raw reads":
+    percent_duplicates: "% Dups"
+    percent_gc: "% GC"
+    avg_sequence_length: "Avg. length"
+    median_sequence_length: "Median length" 
+    total_sequences: "M Seqs"
+    percent_fails: "% Fails"
   "Bowtie2: host removal":
     overall_alignment_rate: "Alignment Rate to Human Genome"

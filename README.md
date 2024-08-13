@@ -31,11 +31,13 @@ UnO is an mNGS bioinformatics pipeline that supports **The UnO Project**. nf-cor
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
+Download the pipeine nad test it on minimal dataset with a single command:
+
 ```console
-nextflow run nf-core/uno --input /path/to/UnOsamplesheet.csv -profile <conda> -c <CONFIG> --outdir <OUTDIR>
+nextflow run uel3/uno -profile conda,test --outdir <OUTDIR>
 ```
 <!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
+     Explain what rows and columns represent. For instance (please edit as appropriate):-->
 
 First, prepare a samplesheet with your input data that looks as follows:
 
@@ -50,15 +52,15 @@ SAMPLE3,UnO,/path/to/reads/SAMPLE3_1.fastq.gz,/path/to/reads/SAMPLE3_2.fastq.gz,
 
 Each row represents a pair of fastq files (paired end).
 
--->
+
 
 Now, you can run the pipeline using:
 
 <!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
-nextflow run nf-core/uno \
-   -profile <docker/singularity/conda/institute> \
+nextflow run uel3/uno \
+   -profile <conda/institute> \
    -genome GRCh38
    --input samplesheet.csv \
    --outdir <OUTDIR>
