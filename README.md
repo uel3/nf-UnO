@@ -81,9 +81,11 @@ For more details about the output files and reports, please refer to the
 
 ## Credits
 
-nf-core/uno is adapted by Candace Cole from nf-core/mag, written by Hadrien Gourlé at SLU, Daniel Straub and Sabrina Krakau at the Quantitative Biology Center (QBiC).
+uel3/uno is adapted by Candace Cole from nf-core/mag, written by Hadrien Gourlé at SLU, Daniel Straub and Sabrina Krakau at the Quantitative Biology Center (QBiC).
 
 We thank the following people for their extensive assistance in the development of this pipeline:
+Andrew Huang
+Rong Jin
 
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
