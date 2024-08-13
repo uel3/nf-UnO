@@ -1,8 +1,6 @@
 include { MAG_DEPTHS                            } from '../../modules/local/mag_depths'
 include { MAG_DEPTHS_PLOT                       } from '../../modules/local/mag_depths_plot'
-//include { MAG_DEPTHS_PLOT                       } from '../../modules/local/mag_depths_plot_log' //testing new heatmap plot script to plot log transformed values 
 include { MAG_DEPTHS_SUMMARY                    } from '../../modules/local/mag_depths_summary'
-
 /*
  * Get number of columns in file (first line)
  */
@@ -59,7 +57,7 @@ workflow DEPTHS {
         }
 
     MAG_DEPTHS_PLOT ( ch_mag_depths_plot, ch_sample_groups.collect() )
-
+    //MULTIQC_HEATMAP ( ch_mag_depths_plot )
     //Depth files that are coming from bins and failed binning refinement are concatenated per meta
     ch_mag_depth_out = MAG_DEPTHS.out.depths
         .collectFile(keepHeader: true) {
@@ -69,10 +67,12 @@ workflow DEPTHS {
 
     MAG_DEPTHS_SUMMARY ( ch_mag_depth_out.collect() )
     ch_versions = ch_versions.mix( MAG_DEPTHS_PLOT.out.versions )
+    //ch_versions = ch_versions.mix( MULTIQC_HEATMAP.out.versions )
     ch_versions = ch_versions.mix( MAG_DEPTHS_SUMMARY.out.versions )
 
     emit:
     depths_summary  = MAG_DEPTHS_SUMMARY.out.summary
-    heatmap         = MAG_DEPTHS_PLOT.out.heatmap 
+    heatmap         = MAG_DEPTHS_PLOT.out.heatmap
+    multiqc_heatmap = MAG_DEPTHS_PLOT.out.log_depths.map{ meta, file -> file }
     versions        = ch_versions
 }

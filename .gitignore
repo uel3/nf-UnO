@@ -9,3 +9,6 @@ testing*
 results*
 cdc-dev.config
 multiqc/
+subworkflows/local/test.nf
+modules/local/midas2/Dockerfile
+modules/local/midas2/Singularity

@@ -18,8 +18,7 @@ process MEGAHIT {
     script:
     def args = task.ext.args ?: ''
     def input = "-1 \"" + reads1.join(",") + "\" -2 \"" + reads2.join(",") + "\""
-    //mem = task.memory.toBytes()
-    //task.cpus = 8 //including this to avoid the error I was getting -this may need to be added to config file with the task.attempt in mind
+    if ( !params.megahit_fix_cpu_1 || task.cpus == 1 )
     """
     ## Check if we're in the same work directory as a previous failed MEGAHIT run
     if [[ -d MEGAHIT ]]; then
@@ -35,4 +34,6 @@ process MEGAHIT {
         megahit: \$(echo \$(megahit -v 2>&1) | sed 's/MEGAHIT v//')
     END_VERSIONS
     """
+    else
+        error "ERROR: '--megahit_fix_cpu_1' was specified, but not succesfully applied. Likely this is caused by changed process properties in a custom config file."
 }

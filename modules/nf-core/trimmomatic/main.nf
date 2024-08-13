@@ -22,11 +22,11 @@ process TRIMMOMATIC {
 
     script:
     def args = task.ext.args ?: ''
+    def trim_params = task.ext.args2 ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def trimmed = "PE"
     def output = "${prefix}.paired.trim_1.fastq.gz ${prefix}.unpaired.trim_1.fastq.gz ${prefix}.paired.trim_2.fastq.gz ${prefix}.unpaired.trim_2.fastq.gz"
     // TODO Give better error output
-    def qual_trim = 'ILLUMINACLIP:$HOME/UnO_nf/nf-core-uno/assets/TruSeq3-PE.fa:2:30:10:8:True LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36' //"${params.adapter_seqeunce}"
     """
     trimmomatic \\
         $trimmed \\
@@ -35,7 +35,7 @@ process TRIMMOMATIC {
         -summary ${prefix}.summary \\
         $reads \\
         $output \\
-        $qual_trim \\
+        $trim_params \\
         $args
 
     cat <<-END_VERSIONS > versions.yml

@@ -12,7 +12,7 @@ def make_report_yaml(output_file, data_df):
         '# genomes': {'title': '# genomes', 'format': '{:,.2f}'},
         'Completeness': {'title': 'Completeness (%)', 'format': '{:,.2f}'},
         'Contamination': {'title': 'Contamination (%)', 'format': '{:,.2f}'},
-        'Strain heterogeneity': {'title':'Strain heterogeneity'},
+        'Strain heterogeneity': {'title':'Strain heterogeneity (%)'},
         'Genome size (bp)': {'title': 'Genome size (bp)', 'format': '{:,d}'},
         'GC': {'title': 'GC (%)', 'format': '{:,.1f}'},
         '# predicted genes': {'title': '# Predicted genes', 'format': '{:,d}'},

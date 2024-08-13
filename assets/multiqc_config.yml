@@ -18,7 +18,6 @@ run_modules:
 
 ## Module order
 top_modules:
-  - custom_content
   - "fastqc":
       name: "FastQC: raw reads"
       path_filters_exclude:
@@ -33,62 +32,66 @@ top_modules:
       info: "After quality trimming and sequencing adapter removal."
       path_filters:
         - "*trimmed*"
+  - custom_content
 custom_data:
   midas2_species_abundance:
     file_format: 'yaml'
     section_name: "MIDAS2 Species Abundance"
     description: 'MIDAS2 species abundance results for all samples.'
-sp:
-  midas2_species_abundance:
-    fn: 'combined_midas2_report_mqc.yaml'
-    
-custom_data:
-  depths:
-    file_format: "image"
-    section_name: "Median Sample Coverage of MAGs"
-    description: "Pre-calculated depth information is used to infer read depth in refined MAG bins. Only bins with reads mapped from all samples are of interest for downstream analysis."
-    plot_type: "image"
-    pconfig:
-      id: "heatmap_reads_bins_CLR_median"
-      title: "Median Read Coverage of Bins"
-      ylab: "Sample Reads"
-sp:
-  depths:
-      fn: "*binDepths.heatmap_mqc.png"
-custom_data:
-  mean_depths:
-    file_format: "image"
-    section_name: "Mean Sample Coverage of MAGs"
-    description: "Sample reads are mapped against MAG bins to calculate bin depths. Only bins with reads mapped from all samples are of interest for downstream analysis."
-    plot_type: "image"
-    pconfig:
-      id: "heatmap_reads_bins_log_mean"
-      title: "Mean Read Coverage of Bins"
-      ylab: "Sample Reads"
-sp:
-  mean_depths: 
-      fn: "*_log_mean_heatmap_mqc.png" 
-
   
+  bin_depth_heatmap_dastool:
+      id: 'bin_depth_heatmap_dastool'
+      section_name: 'Sample Coverage of DASTool Refined MAGs'
+      description: "Sample reads are mapped against DASTool refined bins to calculate bin depths with log transformation. Only bins with reads mapped from all samples are of interest for downstream analysis. Samples with no abundance/contribution for a bin will have a value of -6.0. Any value above -0.6 indicates presence of that bin/bug in the correponding sample."
+      plot_type: 'heatmap'
+      pconfig:
+            id: 'bin_depth_heatmap_dastool'
+      sort_rows: true
+  bin_depth_heatmap_maxbin2:
+      id: 'bin_depth_heatmap_maxbin2'
+      section_name: 'Sample Coverage of MaxBin2 MAGs'
+      description: "Sample reads are mapped against MaxBin2 generated bins to calculate bin depths with log transformation. Only bins with reads mapped from all samples are of interest for downstream analysis. Samples with no abundance/contribution for a bin will have a value of -6.0. Any value above -0.6 indicates presence of that bin/bug in the correponding sample."
+      plot_type: 'heatmap'
+      pconfig:
+            id: 'bin_depth_heatmap_maxbin2'
+      sort_rows: true
+  bin_depth_heatmap_metabat2:
+      id: 'bin_depth_heatmap_metabat2'
+      section_name: 'Sample Coverage of MetaBat2 MAGs'
+      description: "Sample reads are mapped against MetaBat2 generated bins to calculate bin depths with log transformation. Only bins with reads mapped from all samples are of interest for downstream analysis. Samples with no abundance/contribution for a bin will have a value of -6.0. Any value above -0.6 indicates presence of that bin/bug in the correponding sample."
+      plot_type: 'heatmap'
+      pconfig:
+            id: 'bin_depth_heatmap_metabat2'
+      sort_rows: true
+    
   checkm_multiqc_report:
     section_name: "CheckM Statistics"
     description: "Quality assessment of genome bins using CheckM."
     plot_type: 'table'
+sp:
+  midas2_species_abundance:
+    fn: 'combined_midas2_report_mqc.yaml'
+  bin_depth_heatmap_dastool:
+    fn: '*DASTool*heatmap_data.txt'
+  bin_depth_heatmap_maxbin2:
+    fn: '*MaxBin2*heatmap_data.txt'
+  bin_depth_heatmap_metabat2:
+    fn: '*MetaBAT2*heatmap_data.txt'
   checkm_multiqc_report:
-        fn: "*checkm_report_mqc.yaml"
-
+    fn: '*checkm_report_mqc.yaml'
+ignore_images: false
 
 ## General Stats customisation
 table_columns_visible:
   "FastQC: raw reads":
     percent_duplicates: True
-    avg_sequence_length: True
+    avg_sequence_length: False
     median_sequence_length: True
     total_sequences: True
     percent_fails: False
   "FastQC: after preprocessing":
     percent_duplicates: True
-    avg_sequence_length: True
+    avg_sequence_length: False
     median_sequence_length: True
     total_sequences: True
     percent_fails: False

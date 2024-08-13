@@ -39,9 +39,6 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-
-
-
 include { INPUT_CHECK                   } from '../subworkflows/local/input_check'
 include { MIDAS2_DB                     } from '../subworkflows/local/midas2dbbuild'
 include { MIDAS2_SPECIES_SNPS           } from '../modules/local/midas2/speciessnps'
@@ -52,8 +49,6 @@ include { BT2_HOST_REMOVAL_ALIGN        } from '../modules/local/bowtie2/bt2_hos
 include { BINNING_PREP                  } from '../subworkflows/local/binning_prep'
 include { BINNING                       } from '../subworkflows/local/binning'
 include { DASTOOL_BINNING_REFINEMENT    } from '../subworkflows/local/dastool_binning_refinement'
-//include { READ_DEPTHS                   } from '../subworkflows/local/read_depths'
-//include { PLOT_BIN_DEPTHS               } from '../subworkflows/local/plot_bin_depth'
 include { DEPTHS                        } from '../subworkflows/local/depths'
 include { CHECKM_QC                     } from '../subworkflows/local/checkm_qc'
 include { CHECKM_MULTIQC_REPORT         } from '../modules/local/checkm_multiqc_report'
@@ -156,26 +151,8 @@ workflow UNO {
     ch_short_reads_prepped = Channel.empty()
     ch_short_reads_prepped = TRIMMOMATIC.out.trimmed_reads
     ch_versions = ch_versions.mix(TRIMMOMATIC.out.versions.first())
-    //grouped_reads_ch = TRIMMOMATIC
-        //.out
-        //.trimmed_reads
-        //.map { meta, reads ->
-          //[ meta.group, meta, reads ]
-        //}
-        //.groupTuple(by: 0)
-        //.map {
-          //group, meta, reads ->
-
-          //def groupedMeta = [:]
-          //groupedMeta.id = "grouped_$group"
-          //groupedMeta.group = group
-
-          //def reads1 = reads.collect{ it[0] }
-          //def reads2 = reads.collect{ it[1] }
-
-          //[groupedMeta, reads1, reads2]
-       // }
-       //BT2_HOST_REMOVAL_BUILD only runs if a host_fasta is provided instead of host_genome
+    
+    //BT2_HOST_REMOVAL_BUILD only runs if a host_fasta is provided instead of host_genome
     if (params.host_fasta){
             BT2_HOST_REMOVAL_BUILD (
                 ch_host_fasta
@@ -192,7 +169,7 @@ workflow UNO {
         ch_bowtie2_removal_host_multiqc = BT2_HOST_REMOVAL_ALIGN.out.log
         ch_versions = ch_versions.mix(BT2_HOST_REMOVAL_ALIGN.out.versions.first())
         
-        //BT2_HOST_REMOVAL_ALIGN_VERIFY (
+        //BT2_HOST_REMOVAL_ALIGN_VERIFY (   //this is meant to show the efficiency of host removal step 
             //ch_short_reads_hostremoved,
             //ch_host_bowtie2index
         //)
@@ -292,13 +269,6 @@ workflow UNO {
     DEPTHS ( ch_input_for_postbinning_bins_unbins, BINNING.out.metabat2depths, ch_short_reads_assembly )
         ch_input_for_binsummary = DEPTHS.out.depths_summary
         ch_versions = ch_versions.mix(DEPTHS.out.versions)
-    //READ_DEPTHS ( ch_input_for_postbinning_bins_unbins, ch_short_reads_assembly )
-        //ch_input_for_plot = READ_DEPTHS.out.depths
-        //ch_versions = ch_versions.mix(READ_DEPTHS.out.versions)
-        
-    //PLOT_BIN_DEPTHS( ch_input_for_plot, ch_contig2bin )
-        //ch_versions = ch_versions.mix(PLOT_BIN_DEPTHS.out.versions)
-
     /*
     * Bin QC for checking bin completeness with CHECKM
     */
@@ -336,10 +306,8 @@ workflow UNO {
     ch_multiqc_files = ch_multiqc_files.mix(TRIMMOMATIC.out.summary.collect{it[1]}.ifEmpty([]))
     if ( params.host_fasta || params.host_genome ) {ch_multiqc_files = ch_multiqc_files.mix(BT2_HOST_REMOVAL_ALIGN.out.log.collect{it[1]}.ifEmpty([]))}
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMMED.out.raw_reads.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(DEPTHS.out.heatmap.map{ it -> it[1] }.collect().ifEmpty([]))
-    //ch_multiqc_files = ch_multiqc_files.mix(PLOT_BIN_DEPTHS.out.heatmap.map{it -> it[1]}.ifEmpty({}))
+    ch_multiqc_files = ch_multiqc_files.mix(DEPTHS.out.multiqc_heatmap.collect().ifEmpty([]))
     if (!params.skip_binqc){ch_multiqc_files = ch_multiqc_files.mix(CHECKM_MULTIQC_REPORT.out.checkm_mqc_report.collect().ifEmpty([]))}
-    //ch_multiqc_files.view { "MultiQC files: $it" }
     MULTIQC (
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
