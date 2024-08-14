@@ -35,7 +35,7 @@ UnO is an mNGS bioinformatics pipeline that supports **The UnO Project**. nf-cor
 First, download the pipeine and test it on minimal dataset with a single command:
 
 ```console
-nextflow run uel3/uno -profile conda,test --outdir <OUTDIR>
+nextflow run uel3/nf-core-uno -profile conda,test --outdir <OUTDIR>
 ```
 <!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
      Explain what rows and columns represent. For instance (please edit as appropriate):-->
@@ -60,7 +60,7 @@ Now, you can run the pipeline using:
 <!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
-nextflow run uel3/uno \
+nextflow run uel3/nf-core-uno \
    -profile <conda/institute> \
    -genome GRCh38
    --input samplesheet.csv \

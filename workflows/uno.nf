@@ -222,72 +222,73 @@ workflow UNO {
             ch_assemblies = ch_assemblies.mix(ch_megahit_assemblies)
             ch_versions = ch_versions.mix(MEGAHIT.out.versions.first())
     
-    ch_checkm_summary = Channel.empty()
-        
-    BINNING_PREP ( ch_assemblies, ch_short_reads_assembly )
+    ch_checkm_summary = Channel.empty()    
+    if ( !params.skip_binning ) {    
+        BINNING_PREP ( ch_assemblies, ch_short_reads_assembly )
+                ch_versions = ch_versions.mix(BINNING_PREP.out.bowtie2_version.first())
+    
+        BINNING (BINNING_PREP.out.grouped_mappings, ch_short_reads_assembly)
+            ch_bowtie2_assembly_multiqc = BINNING_PREP.out.bowtie2_assembly_multiqc
             ch_versions = ch_versions.mix(BINNING_PREP.out.bowtie2_version.first())
-    BINNING (BINNING_PREP.out.grouped_mappings, ch_short_reads_assembly)
-        ch_bowtie2_assembly_multiqc = BINNING_PREP.out.bowtie2_assembly_multiqc
-        ch_versions = ch_versions.mix(BINNING_PREP.out.bowtie2_version.first())
-        ch_versions = ch_versions.mix(BINNING.out.versions)
-    ch_binning_results_bins = BINNING.out.bins
-    ch_binning_results_bins = ch_binning_results_bins
-            .map { meta, bins ->
-                def meta_new = meta + [refinement:'unrefined']
-                [meta_new , bins]
+            ch_versions = ch_versions.mix(BINNING.out.versions)
+        ch_binning_results_bins = BINNING.out.bins
+        ch_binning_results_bins = ch_binning_results_bins
+                .map { meta, bins ->
+                    def meta_new = meta + [refinement:'unrefined']
+                    [meta_new , bins]
+                }
+        ch_binning_results_unbins =  BINNING.out.unbinned
+        ch_binning_results_unbins = ch_binning_results_unbins
+                .map { meta, bins ->
+                    def meta_new = meta + [refinement:'unrefined_unbinned']
+                    [meta_new, bins]
+                }
+        ch_contigs_for_binrefinement = BINNING_PREP.out.grouped_mappings
+                        .map{ meta, contigs, bam, bai -> [ meta, contigs ] }
+        if ( params.refine_bins_dastool ) {
+            DASTOOL_BINNING_REFINEMENT ( ch_contigs_for_binrefinement, ch_binning_results_bins )
+            ch_refined_bins = DASTOOL_BINNING_REFINEMENT.out.refined_bins
+            ch_refined_unbins = DASTOOL_BINNING_REFINEMENT.out.refined_unbins
+            ch_contig2bin = DASTOOL_BINNING_REFINEMENT.out.contig2bin
+                .map { meta, file -> [ meta, file ] }
+            ch_versions = ch_versions.mix(DASTOOL_BINNING_REFINEMENT.out.versions)
+            //including the following channel mapping options in case we want to look at raw bins or both eventually
+            if ( params.postbinning_input == 'raw_bins_only' ) {
+                ch_input_for_postbinning_bins        = ch_binning_results_bins
+                ch_input_for_postbinning_bins_unbins = ch_binning_results_bins.mix(ch_binning_results_unbins)
+            } else if ( params.postbinning_input == 'refined_bins_only' ) {
+                ch_input_for_postbinning_bins        = ch_refined_bins
+                ch_input_for_postbinning_bins_unbins = ch_refined_bins.mix(ch_refined_unbins)
+            } else if ( params.postbinning_input == 'both' ) {
+                ch_all_bins = ch_binning_results_bins.mix(ch_refined_bins)
+                ch_input_for_postbinning_bins        = ch_all_bins
+                ch_input_for_postbinning_bins_unbins = ch_all_bins.mix(ch_binning_results_unbins).mix(ch_refined_unbins)
             }
-    ch_binning_results_unbins =  BINNING.out.unbinned
-    ch_binning_results_unbins = ch_binning_results_unbins
-            .map { meta, bins ->
-                def meta_new = meta + [refinement:'unrefined_unbinned']
-                [meta_new, bins]
-            }
-    ch_contigs_for_binrefinement = BINNING_PREP.out.grouped_mappings
-                    .map{ meta, contigs, bam, bai -> [ meta, contigs ] }
-    if ( params.refine_bins_dastool ) {
-        DASTOOL_BINNING_REFINEMENT ( ch_contigs_for_binrefinement, ch_binning_results_bins )
-        ch_refined_bins = DASTOOL_BINNING_REFINEMENT.out.refined_bins
-        ch_refined_unbins = DASTOOL_BINNING_REFINEMENT.out.refined_unbins
-        ch_contig2bin = DASTOOL_BINNING_REFINEMENT.out.contig2bin
-            .map { meta, file -> [ meta, file ] }
-        ch_versions = ch_versions.mix(DASTOOL_BINNING_REFINEMENT.out.versions)
-        //including the following channel mapping options in case we want to look at raw bins or both eventually
-        if ( params.postbinning_input == 'raw_bins_only' ) {
+        } else {
             ch_input_for_postbinning_bins        = ch_binning_results_bins
             ch_input_for_postbinning_bins_unbins = ch_binning_results_bins.mix(ch_binning_results_unbins)
-        } else if ( params.postbinning_input == 'refined_bins_only' ) {
-            ch_input_for_postbinning_bins        = ch_refined_bins
-            ch_input_for_postbinning_bins_unbins = ch_refined_bins.mix(ch_refined_unbins)
-        } else if ( params.postbinning_input == 'both' ) {
-            ch_all_bins = ch_binning_results_bins.mix(ch_refined_bins)
-            ch_input_for_postbinning_bins        = ch_all_bins
-            ch_input_for_postbinning_bins_unbins = ch_all_bins.mix(ch_binning_results_unbins).mix(ch_refined_unbins)
         }
-    } else {
-        ch_input_for_postbinning_bins        = ch_binning_results_bins
-        ch_input_for_postbinning_bins_unbins = ch_binning_results_bins.mix(ch_binning_results_unbins)
-    }
-    
-    DEPTHS ( ch_input_for_postbinning_bins_unbins, BINNING.out.metabat2depths, ch_short_reads_assembly )
-        ch_input_for_binsummary = DEPTHS.out.depths_summary
-        ch_versions = ch_versions.mix(DEPTHS.out.versions)
+        
+            DEPTHS ( ch_input_for_postbinning_bins_unbins, BINNING.out.metabat2depths, ch_short_reads_assembly )
+                ch_input_for_binsummary = DEPTHS.out.depths_summary
+                ch_versions = ch_versions.mix(DEPTHS.out.versions)
     /*
     * Bin QC for checking bin completeness with CHECKM
     */
-    ch_input_bins_for_qc = ch_input_for_postbinning_bins_unbins.transpose()
-    if (!params.skip_binqc){
-         CHECKM_QC (
-                ch_input_bins_for_qc.groupTuple(),
-                ch_checkm_db
-            )
-            ch_checkm_summary = CHECKM_QC.out.summary
+            ch_input_bins_for_qc = ch_input_for_postbinning_bins_unbins.transpose()
+            if (!params.skip_binqc){
+                CHECKM_QC (
+                        ch_input_bins_for_qc.groupTuple(),
+                        ch_checkm_db
+                    )
+                    ch_checkm_summary = CHECKM_QC.out.summary
 
-            ch_versions = ch_versions.mix(CHECKM_QC.out.versions)
-        CHECKM_MULTIQC_REPORT(ch_checkm_summary)
-        ch_checkm_report = CHECKM_MULTIQC_REPORT.out.checkm_mqc_report
-        ch_versions = ch_versions.mix(CHECKM_MULTIQC_REPORT.out.versions)
+                    ch_versions = ch_versions.mix(CHECKM_QC.out.versions)
+                CHECKM_MULTIQC_REPORT(ch_checkm_summary)
+                ch_checkm_report = CHECKM_MULTIQC_REPORT.out.checkm_mqc_report
+                ch_versions = ch_versions.mix(CHECKM_MULTIQC_REPORT.out.versions)
+            }
     }
-    
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
@@ -308,7 +309,7 @@ workflow UNO {
     ch_multiqc_files = ch_multiqc_files.mix(TRIMMOMATIC.out.summary.collect{it[1]}.ifEmpty([]))
     if ( params.host_fasta || params.host_genome ) {ch_multiqc_files = ch_multiqc_files.mix(BT2_HOST_REMOVAL_ALIGN.out.log.collect{it[1]}.ifEmpty([]))}
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMMED.out.raw_reads.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(DEPTHS.out.multiqc_heatmap.collect().ifEmpty([]))
+    if (!params.skip_binning){ch_multiqc_files = ch_multiqc_files.mix(DEPTHS.out.multiqc_heatmap.collect().ifEmpty([]))}
     if (!params.skip_binqc){ch_multiqc_files = ch_multiqc_files.mix(CHECKM_MULTIQC_REPORT.out.checkm_mqc_report.collect().ifEmpty([]))}
     MULTIQC (
         ch_multiqc_files.collect(),
