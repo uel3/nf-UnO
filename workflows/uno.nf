@@ -244,23 +244,25 @@ workflow UNO {
             }
     ch_contigs_for_binrefinement = BINNING_PREP.out.grouped_mappings
                     .map{ meta, contigs, bam, bai -> [ meta, contigs ] }
-    DASTOOL_BINNING_REFINEMENT ( ch_contigs_for_binrefinement, ch_binning_results_bins )
-    ch_refined_bins = DASTOOL_BINNING_REFINEMENT.out.refined_bins
-    ch_refined_unbins = DASTOOL_BINNING_REFINEMENT.out.refined_unbins
-    ch_contig2bin = DASTOOL_BINNING_REFINEMENT.out.contig2bin
-        .map { meta, file -> [ meta, file ] }
-    ch_versions = ch_versions.mix(DASTOOL_BINNING_REFINEMENT.out.versions)
-    //including the following channel mapping options in case we want to look at raw bins or both eventually
-   if ( params.postbinning_input == 'raw_bins_only' ) {
-        ch_input_for_postbinning_bins        = ch_binning_results_bins
-        ch_input_for_postbinning_bins_unbins = ch_binning_results_bins.mix(ch_binning_results_unbins)
-    } else if ( params.postbinning_input == 'refined_bins_only' ) {
-        ch_input_for_postbinning_bins        = ch_refined_bins
-        ch_input_for_postbinning_bins_unbins = ch_refined_bins.mix(ch_refined_unbins)
-    } else if ( params.postbinning_input == 'both' ) {
-        ch_all_bins = ch_binning_results_bins.mix(ch_refined_bins)
-        ch_input_for_postbinning_bins        = ch_all_bins
-        ch_input_for_postbinning_bins_unbins = ch_all_bins.mix(ch_binning_results_unbins).mix(ch_refined_unbins)
+    if ( params.refine_bins_dastool ) {
+        DASTOOL_BINNING_REFINEMENT ( ch_contigs_for_binrefinement, ch_binning_results_bins )
+        ch_refined_bins = DASTOOL_BINNING_REFINEMENT.out.refined_bins
+        ch_refined_unbins = DASTOOL_BINNING_REFINEMENT.out.refined_unbins
+        ch_contig2bin = DASTOOL_BINNING_REFINEMENT.out.contig2bin
+            .map { meta, file -> [ meta, file ] }
+        ch_versions = ch_versions.mix(DASTOOL_BINNING_REFINEMENT.out.versions)
+        //including the following channel mapping options in case we want to look at raw bins or both eventually
+        if ( params.postbinning_input == 'raw_bins_only' ) {
+            ch_input_for_postbinning_bins        = ch_binning_results_bins
+            ch_input_for_postbinning_bins_unbins = ch_binning_results_bins.mix(ch_binning_results_unbins)
+        } else if ( params.postbinning_input == 'refined_bins_only' ) {
+            ch_input_for_postbinning_bins        = ch_refined_bins
+            ch_input_for_postbinning_bins_unbins = ch_refined_bins.mix(ch_refined_unbins)
+        } else if ( params.postbinning_input == 'both' ) {
+            ch_all_bins = ch_binning_results_bins.mix(ch_refined_bins)
+            ch_input_for_postbinning_bins        = ch_all_bins
+            ch_input_for_postbinning_bins_unbins = ch_all_bins.mix(ch_binning_results_unbins).mix(ch_refined_unbins)
+        }
     } else {
         ch_input_for_postbinning_bins        = ch_binning_results_bins
         ch_input_for_postbinning_bins_unbins = ch_binning_results_bins.mix(ch_binning_results_unbins)
