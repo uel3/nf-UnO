@@ -90,6 +90,7 @@ uel3/uno is adapted by Candace Cole from nf-core/mag, written by Hadrien Gourlé
 We thank the following people for their extensive assistance in the development of this pipeline:
 
 Andrew Huang
+
 Rong Jin
 
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
