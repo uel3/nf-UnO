@@ -27,6 +27,11 @@ UnO is an mNGS bioinformatics pipeline that supports **The UnO Project**. nf-cor
 10. ([`CheckM`](https://ecogenomics.github.io/CheckM/)) is used to asses quality of refined bins. 
 11. ([`MultiQC`](http://multiqc.info/)) is used to summarize some of the findings and software versions.
 
+## Workflow
+<p align="center">
+  <img src="images/nfuno_workflow.svg" alt="nf-uno workflow" width="750">
+</p>
+
 ## Usage
 
 > [!NOTE]
@@ -82,6 +87,9 @@ For more details and further functionality, please refer to the [usage documenta
 Current output of the draft UnO output consists of the user specified <OUTDIR> with following directories: Assembly, FastQC, GenomeBinning, multiqc, pipeline_info, QC_shortreads, and Trimmomatic. 
 For more details about the output files and reports, please refer to the
 [output documentation](https://github.com/uel3/nf-core-uno/wiki/Output).
+<p align="center">
+  <img src="images/multiqc_general_stats.png" alt="General Stats Table with FastQC Results" width="750">
+</p>
 
 ## Credits
 
