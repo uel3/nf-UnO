@@ -20,14 +20,23 @@ def combine_midas2_reports(input_files, output_file):
     # Create headers dictionary
     headers = {
         'sample_name': {'title': 'Sample'},
-        'species_id': {'title': 'Species ID'},
-        'genome_length': {'title': 'Genome Length'},
-        'covered_bases': {'title': 'Covered Bases'},
-        'total_depth': {'title': 'Total Depth'},
-        'aligned_reads': {'title': 'Aligned Reads'},
-        'mapped_reads': {'title': 'Mapped Reads'},
-        'fraction_covered': {'title': 'Fraction Covered'},
-        'mean_coverage': {'title': 'Mean Coverage'},
+        'species_id': {
+            'title': 'Species ID',
+            'format':'{:,.0f}',},
+        'genome_length': {'title': 'Genome Length',
+            'format':'{:,.0f}',},
+        'covered_bases': {'title': 'Covered Bases',
+            'format':'{:,.0f}',},
+        'total_depth': {'title': 'Total Depth',
+            'format':'{:,.0f}',},
+        'aligned_reads': {'title': 'Aligned Reads',
+            'format':'{:,.0f}',},
+        'mapped_reads': {'title': 'Mapped Reads',
+            'format':'{:,.0f}',},
+        'fraction_covered': {'title': 'Fraction Covered',
+            'format':'{:,.1f}',},
+        'mean_coverage': {'title': 'Mean Coverage',
+            'format':'{:,.1f}',},
         'Lineage': {'title': 'Lineage'},
         'Continent': {'title': 'Continent'}
     }
@@ -43,7 +52,9 @@ def combine_midas2_reports(input_files, output_file):
         'plot_type': 'table',
         'pconfig': {
             'id': 'midas2_species_abundance',
-            'title': 'MIDAS2 Species Abundance'
+            'title': 'MIDAS2 Species Abundance',
+            'col1_header': 'SampleName_SpeciesID',
+            "scale": False,
         },
         'headers': headers,
         'data': data_yaml

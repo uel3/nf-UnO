@@ -25,7 +25,7 @@ process MEGAHIT {
         rm -r MEGAHIT/
     fi
 
-    megahit $args -t "${task.cpus}" -m 0.9 $input -o MEGAHIT --out-prefix "MEGAHIT-${meta.id}"
+    megahit $args -t "${task.cpus}" --mem-flag 2 $input -o MEGAHIT --out-prefix "MEGAHIT-${meta.id}"
 
     gzip -c "MEGAHIT/MEGAHIT-${meta.id}.contigs.fa" > "MEGAHIT/MEGAHIT-${meta.id}.contigs.fa.gz"
 

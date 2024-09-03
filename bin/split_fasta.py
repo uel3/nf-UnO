@@ -12,7 +12,7 @@ from sys import argv
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import generic_dna
+#from Bio.Alphabet import generic_dna
 import os
 import re
 
@@ -50,12 +50,12 @@ if input_file.endswith(".gz"):
             # contigs to retain and pool
             elif length >= min_length_to_retain_contig:
                 pooled.append(
-                    SeqRecord(Seq(sequence, generic_dna), id=name, description="")
+                    SeqRecord(Seq(sequence), id=name, description="")
                 )
             # remaining sequences
             else:
                 remaining.append(
-                    SeqRecord(Seq(sequence, generic_dna), id=name, description="")
+                    SeqRecord(Seq(sequence), id=name, description="")
                 )
 else:
     with open(input_file) as f:
@@ -73,12 +73,12 @@ else:
             # contigs to retain and pool
             elif length >= min_length_to_retain_contig:
                 pooled.append(
-                    SeqRecord(Seq(sequence, generic_dna), id=name, description="")
+                    SeqRecord(Seq(sequence), id=name, description="")
                 )
             # remaining sequences
             else:
                 remaining.append(
-                    SeqRecord(Seq(sequence, generic_dna), id=name, description="")
+                    SeqRecord(Seq(sequence), id=name, description="")
                 )
 
 # Sort sequences above threshold by length
@@ -89,11 +89,11 @@ df_above_threshold.reset_index(drop=True, inplace=True)
 for index, row in df_above_threshold.iterrows():
     if index + 1 <= max_sequences:
         print("write " + out_base + "." + str(index + 1) + ".fa")
-        out = SeqRecord(Seq(row["seq"], generic_dna), id=row["id"], description="")
+        out = SeqRecord(Seq(row["seq"]), id=row["id"], description="")
         SeqIO.write(out, out_base + "." + str(index + 1) + ".fa", "fasta")
     else:
         pooled.append(
-            SeqRecord(Seq(row["seq"], generic_dna), id=row["id"], description="")
+            SeqRecord(Seq(row["seq"]), id=row["id"], description="")
         )
 
 print("write " + out_base + ".pooled.fa")

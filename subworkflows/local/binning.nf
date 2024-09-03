@@ -11,15 +11,17 @@ include { GUNZIP as GUNZIP_BINS                } from '../../modules/nf-core/gun
 include { GUNZIP as GUNZIP_UNBINS              } from '../../modules/nf-core/gunzip/main'
 
 include { SPLIT_FASTA                          } from '../../modules/local/split_fasta'
-include { CONVERT_DEPTHS                       } from '../../modules/local/convert_depths'
+//include { CONVERT_DEPTHS                       } from '../../modules/local/convert_depths'
+include { CONVERT_DEPTHS_ALL                   } from '../../modules/local/convert_depths_all_reads'
 include { ADJUST_MAXBIN2_EXT                   } from '../../modules/local/adjust_maxbin2_ext'
 
 workflow BINNING {
 
     take:
     // TODO nf-core: edit input (take) channels
-    assemblies           // channel: [ val(meta), path(assembly), path(bams), path(bais) ]
+    assemblies           // channel: [ val(meta), path(assembly),path(bams), path(bais) ]
     reads                // channel: [ val(meta), [ reads ] ]
+    //reads_list           // channel: [ val(meta), [ text_file_ch] ]
 
     main:
 
@@ -57,13 +59,13 @@ workflow BINNING {
         .map { meta, assembly, bams, bais, depths ->
             [ meta, assembly, depths ]
         }
-    CONVERT_DEPTHS ( ch_metabat2_input )
-        ch_maxbin2_input = CONVERT_DEPTHS.out.output
-            .map { meta, assembly, reads, depth ->
+    CONVERT_DEPTHS_ALL ( ch_metabat2_input )
+        ch_maxbin2_input = CONVERT_DEPTHS_ALL.out.output
+            .map { meta, assembly, reads_list, reads, abund_list, depth ->
                     def meta_new = meta + [binner: 'MaxBin2']
-                [ meta_new, assembly, reads, depth ]
+                [ meta_new, assembly, reads_list, reads, abund_list, depth ]
             }
-        ch_versions = ch_versions.mix(CONVERT_DEPTHS.out.versions.first())
+        ch_versions = ch_versions.mix(CONVERT_DEPTHS_ALL.out.versions.first())
     // main bins for decompressing for MAG_DEPTHS
     ch_final_bins_for_gunzip = Channel.empty()
     // final gzipped bins
@@ -74,6 +76,17 @@ workflow BINNING {
         ch_final_bins_for_gunzip = ch_final_bins_for_gunzip.mix( METABAT2_METABAT2.out.fasta.transpose() )
         ch_binning_results_gzipped_final = ch_binning_results_gzipped_final.mix( METABAT2_METABAT2.out.fasta )
         ch_versions = ch_versions.mix(METABAT2_METABAT2.out.versions.first())
+    //adding a reads_list option to check binning perfomance without using precomputed depths
+    //ch_maxbin2_input_readslist = assemblies
+        //.map { meta, assembly, bams, bais ->
+            //def meta_new = meta.clone()
+            //meta_new['binner'] = 'MaxBin2'
+            //[ meta_new, assembly ]
+        //}
+        //.combine(reads_list)
+        //.map { meta, assembly, reads_list ->
+            //[ meta, assembly, reads_list, [], [] ]
+        //}
     MAXBIN2 ( ch_maxbin2_input )
     ADJUST_MAXBIN2_EXT ( MAXBIN2.out.binned_fastas )
         ch_final_bins_for_gunzip = ch_final_bins_for_gunzip.mix( ADJUST_MAXBIN2_EXT.out.renamed_bins.transpose() )

@@ -31,12 +31,13 @@ def make_report_yaml(output_file, data_df):
     # Create the full YAML dictionary
     yaml_dict = {
         'id': 'checkm_stats',
-        'section_name': 'CheckM Statistics',
+        'section_name': 'CheckM:Bin Quality Statistics',
         'description': 'Quality assessment of genome bins using CheckM',
         'plot_type': 'table',
         'pconfig': {
             'id': 'checkm_stats',
-            'sort_rows': False
+            'sort_rows': False,
+            "scale": False,
         },
         'headers': headers,
         'data': data_yaml

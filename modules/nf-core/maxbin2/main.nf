@@ -8,7 +8,7 @@ process MAXBIN2 {
         'biocontainers/maxbin2:2.2.7--he1b5a44_2' }"
 
     input:
-    tuple val(meta), path(contigs), path(reads), path(abund)
+    tuple val(meta), path(contigs), path(reads_list), path(reads), path(abund_list), path(abund)
 
     output:
     tuple val(meta), path("*.fasta.gz")   , emit: binned_fastas
@@ -27,7 +27,8 @@ process MAXBIN2 {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def associate_files = reads ? "-reads $reads" : "-abund $abund"
+    def associate_files = abund_list ? "-abund_list $abund_list" : reads_list ? "-reads_list $reads_list" : abund ? "-abund $abund" : reads ? "-reads $reads" : "" //adding a reads_list to check for differences in binning
+
     """
     mkdir input/ && mv $contigs input/
     run_MaxBin.pl \\

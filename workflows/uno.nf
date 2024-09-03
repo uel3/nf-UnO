@@ -42,7 +42,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 include { INPUT_CHECK                   } from '../subworkflows/local/input_check'
 include { MIDAS2_DB                     } from '../subworkflows/local/midas2dbbuild'
 include { MIDAS2_SPECIES_SNPS           } from '../modules/local/midas2/speciessnps'
-include { MIDAS2_PARSE                  } from '../modules/local/midas2/parse'
+include { MIDAS2_PARSE_GENUS_SPECIES    } from '../modules/local/midas2/parse_genus_species'
 include { BT2_HOST_REMOVAL_BUILD        } from '../modules/local/bowtie2/bt2_host_removal_build'
 include { BT2_HOST_REMOVAL_ALIGN        } from '../modules/local/bowtie2/bt2_host_removal_align'
 //include { BT2_HOST_REMOVAL_ALIGN_VERIFY } from '../modules/local/bowtie2/bt2_host_removal_align_verify'
@@ -125,11 +125,11 @@ workflow UNO {
             ch_raw_short_reads
     )
     ch_versions = ch_versions.mix(MIDAS2_SPECIES_SNPS.out.versions.first())
-        MIDAS2_PARSE (MIDAS2_DB.out.midas2_db_metadata, 
+        MIDAS2_PARSE_GENUS_SPECIES (MIDAS2_DB.out.midas2_db_metadata, 
             MIDAS2_SPECIES_SNPS.out.midas2_snps
     )
-        ch_versions = ch_versions.mix(MIDAS2_PARSE.out.versions.first())
-        midas2_reports = MIDAS2_PARSE.out.snps_id_list.map { it[1] }.collect()
+        ch_versions = ch_versions.mix(MIDAS2_PARSE_GENUS_SPECIES.out.versions.first())
+        midas2_reports = MIDAS2_PARSE_GENUS_SPECIES.out.snps_id_list.map { it[1] }.collect()
         COMBINE_MIDAS2_REPORTS (midas2_reports)
         ch_versions = ch_versions.mix(COMBINE_MIDAS2_REPORTS.out.versions.first())
     }
@@ -153,14 +153,14 @@ workflow UNO {
     ch_versions = ch_versions.mix(TRIMMOMATIC.out.versions.first())
     
     //BT2_HOST_REMOVAL_BUILD only runs if a host_fasta is provided instead of host_genome
-    if (params.host_fasta){
+    if (params.host_fasta && !params.skip_host_removal){
             BT2_HOST_REMOVAL_BUILD (
                 ch_host_fasta
             )
             ch_host_bowtie2index = BT2_HOST_REMOVAL_BUILD.out.index
     }
     ch_bowtie2_removal_host_multiqc = Channel.empty()
-    if (params.host_fasta || params.host_genome){
+    if ((params.host_fasta || params.host_genome) && !params.skip_host_removal){
         BT2_HOST_REMOVAL_ALIGN (
             ch_short_reads_prepped,
             ch_host_bowtie2index
@@ -226,7 +226,12 @@ workflow UNO {
     if ( !params.skip_binning ) {    
         BINNING_PREP ( ch_assemblies, ch_short_reads_assembly )
                 ch_versions = ch_versions.mix(BINNING_PREP.out.bowtie2_version.first())
-    
+        // Create a text file channel with the reads to pass to maxbin2 to calculate abundance
+        //text_file_ch = ch_short_reads_grouped
+            //.map { sample, reads1, reads2 -> 
+            //reads1.join("\n") + "\n" + reads2.join("\n") 
+            //}
+            //.collectFile(name: 'maxbin2_reads_list.txt')
         BINNING (BINNING_PREP.out.grouped_mappings, ch_short_reads_assembly)
             ch_bowtie2_assembly_multiqc = BINNING_PREP.out.bowtie2_assembly_multiqc
             ch_versions = ch_versions.mix(BINNING_PREP.out.bowtie2_version.first())
@@ -307,7 +312,7 @@ workflow UNO {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_RAW.out.raw_reads.collect{it[1]}.ifEmpty([]))
     if ( !params.skip_midas2 ){ch_multiqc_files = ch_multiqc_files.mix(COMBINE_MIDAS2_REPORTS.out.combined_report.collect().ifEmpty([]))}
     ch_multiqc_files = ch_multiqc_files.mix(TRIMMOMATIC.out.summary.collect{it[1]}.ifEmpty([]))
-    if ( params.host_fasta || params.host_genome ) {ch_multiqc_files = ch_multiqc_files.mix(BT2_HOST_REMOVAL_ALIGN.out.log.collect{it[1]}.ifEmpty([]))}
+    if ( (params.host_fasta || params.host_genome) &&!params.skip_host_removal ) {ch_multiqc_files = ch_multiqc_files.mix(BT2_HOST_REMOVAL_ALIGN.out.log.collect{it[1]}.ifEmpty([]))}
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMMED.out.raw_reads.collect{it[1]}.ifEmpty([]))
     if (!params.skip_binning){ch_multiqc_files = ch_multiqc_files.mix(DEPTHS.out.multiqc_heatmap.collect().ifEmpty([]))}
     if (!params.skip_binqc){ch_multiqc_files = ch_multiqc_files.mix(CHECKM_MULTIQC_REPORT.out.checkm_mqc_report.collect().ifEmpty([]))}
