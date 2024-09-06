@@ -52,7 +52,7 @@ Next, test it on the minimal dataset provided using the test.config:
 nextflow run nf-core-uno -profile conda,test --outdir <OUTDIR>
 ```
 
-Some configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile. You can chain multiple config profiles in a comma-separated string passed to -profile in combination with a config file passed to -c.
+Some configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile. You can chain multiple config profiles in a comma-separated string passed to `-profile` in combination with a config file passed to `-c`.
 
 > [!NOTE]
 > If you are running the nf-uno for the first time, it will take longer to run because the dependencies for each process are being loaded. Subsequent runs should be much faster. 
