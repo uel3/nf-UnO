@@ -34,10 +34,14 @@ UnO is an mNGS bioinformatics pipeline that supports **The UnO Project**. nf-cor
 
 ## Usage
 
+Running nf-uno requires Nextflow (`>=21.10.3`) and conda to be installed. There are detailed instructions below for Nextflow installation, including Nextflow's Bash and Java requirements. 
+Conda is required for the MIDAS2 process therefore, we recommend using conda for all required dependencies.
+
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
+> For conda installation, please refer to [this page](https://docs.conda.io/projects/conda/en/stable/user-guide/install/index.html).
 
-First, clone the pipeline:
+When Nextflow and conda are installed, clone the pipeline:
 ```console
 git clone https://github.com/uel3/nf-core-uno
 ```
@@ -47,6 +51,12 @@ Next, test it on the minimal dataset provided using the test.config:
 ```console
 nextflow run nf-core-uno -profile conda,test --outdir <OUTDIR>
 ```
+
+Some configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile. You can chain multiple config profiles in a comma-separated string passed to -profile in combination with a config file passed to -c.
+
+> [!NOTE]
+> If you are running the nf-uno for the first time, it will take longer to run because the dependencies for each process are being loaded. Subsequent runs should be much faster. 
+
 <!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
      Explain what rows and columns represent. For instance (please edit as appropriate):-->
 
@@ -62,7 +72,6 @@ SAMPLE3,UnO,/path/to/reads/SAMPLE3_1.fastq.gz,/path/to/reads/SAMPLE3_2.fastq.gz,
 ```
 
 Each row represents a pair of fastq files (paired end).
-
 
 
 Now, you can run the pipeline using:
