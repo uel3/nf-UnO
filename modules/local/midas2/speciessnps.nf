@@ -9,7 +9,7 @@ process MIDAS2_SPECIES_SNPS {
     }
 
     input:
-    path midasdb_dir
+    path(midasdb_dir)
     tuple val(meta), path(reads)
 
     output:

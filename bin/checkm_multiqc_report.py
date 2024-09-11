@@ -7,21 +7,54 @@ import yaml
 def make_report_yaml(output_file, data_df):
     # Create headers dictionary based on your CheckM columns
     headers = {
-        'Bin Id': {'title': 'Bin ID'},
-        'Marker lineage': {'title': 'Marker lineage'},
-        '# genomes': {'title': '# genomes', 'format': '{:,.2f}'},
-        'Completeness': {'title': 'Completeness (%)', 'format': '{:,.2f}'},
-        'Contamination': {'title': 'Contamination (%)', 'format': '{:,.2f}'},
-        'Strain heterogeneity': {'title':'Strain heterogeneity (%)'},
-        'Genome size (bp)': {'title': 'Genome size (bp)', 'format': '{:,d}'},
-        'GC': {'title': 'GC (%)', 'format': '{:,.1f}'},
-        '# predicted genes': {'title': '# Predicted genes', 'format': '{:,d}'},
-        '0':{'title':'0', 'format': '{:,.2f}'},
-        '1':{'title':'1', 'format': '{:,.2f}'},
-        '2':{'title':'2', 'format': '{:,.2f}'},
-        '3':{'title':'3', 'format': '{:,.2f}'},
-        '4':{'title':'4', 'format': '{:,.2f}'},
-        '5+':{'title':'5+', 'format': '{:,.2f}'}
+        'Bin Id': {
+            'title': 'Bin ID'},
+        'Marker lineage': {
+            'title': 'Marker lineage'},
+        '# genomes': {
+            'title': '# genomes',
+            'format': '{:,.2f}'},
+        'Completeness': {
+            'title': 'Completeness (%)',
+             'description':'Estimated completeness of genome bin based on presence/absence of single copy genes.',
+            'format': '{:,.2f}'},
+        'Contamination': {
+            'title': 'Contamination (%)',
+            'description':'Estimated contamination of genome bin based on presence of multiple copies of single copy genes.',
+            'format': '{:,.2f}'},
+        'Strain heterogeneity': {
+            'title':'Strain heterogeneity (%)'},
+            'description':'Measure of contamination that can attributed to closely related organisms.',
+        'Genome size (bp)': {
+            'title': 'Genome size (bp)',
+            'description':'Number of nucleotides (including Ns) in the genome bin.',
+            'format': '{:,d}'},
+        'GC': {
+            'title': 'GC (%)',
+            'description':'number of G/C nucleotides relative to all nucleotides in the genome bin.',
+            'format': '{:,.1f}'},
+        '# predicted genes': {
+            'title': '# Predicted genes',
+            'description':'number of predicted coding sequences (CDS) within the genome bin.',
+            'format': '{:,d}'},
+        '0':{
+            'title':'0',
+            'format': '{:,.2f}'},
+        '1':{
+            'title':'1',
+            'format': '{:,.2f}'},
+        '2':{
+            'title':'2',
+            'format': '{:,.2f}'},
+        '3':{
+            'title':'3',
+            'format': '{:,.2f}'},
+        '4':{
+            'title':'4',
+            'format': '{:,.2f}'},
+        '5+':{
+            'title':'5+',
+            'format': '{:,.2f}'}
         # Add more headers as needed
     }
 
