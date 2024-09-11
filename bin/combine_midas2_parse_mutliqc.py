@@ -19,26 +19,47 @@ def combine_midas2_reports(input_files, output_file):
 
     # Create headers dictionary
     headers = {
-        'sample_name': {'title': 'Sample'},
+        'sample_name': {
+            'title': 'Sample',
+            'description': 'Input mNGS read name'},
         'species_id': {
             'title': 'Species ID',
+            'description':'Six-digit species ID',
             'format':'{:,.0f}',},
-        'genome_length': {'title': 'Genome Length',
+        'genome_length': {
+            'title': 'Genome Length',
+            'description':'Length of reference genome in MIDAS2 database',
             'format':'{:,.0f}',},
-        'covered_bases': {'title': 'Covered Bases',
+        'covered_bases': {
+            'title': 'Covered Bases',
+            'description':'Number of bases covered by at least one post-filtered reads',
             'format':'{:,.0f}',},
-        'total_depth': {'title': 'Total Depth',
+        'total_depth': {
+            'title': 'Total Depth',
+            'description':'Total read depth across all covered bases',
             'format':'{:,.0f}',},
-        'aligned_reads': {'title': 'Aligned Reads',
+        'aligned_reads': {
+            'title': 'Aligned Reads',
+            'description':'Total read counts across covered bases before post-alignment filter',
             'format':'{:,.0f}',},
-        'mapped_reads': {'title': 'Mapped Reads',
+        'mapped_reads': {
+            'title': 'Mapped Reads',
+            'description':'Total read counts across covered bases after post-alignment filter',
             'format':'{:,.0f}',},
-        'fraction_covered': {'title': 'Fraction Covered',
+        'fraction_covered': {
+            'title': 'Fraction Covered',
+            'description':'Fraction of covered bases (horizontal genome coverage)',
             'format':'{:,.1f}',},
-        'mean_coverage': {'title': 'Mean Coverage',
+        'mean_coverage': {
+            'title': 'Mean Coverage',
+            'description':'Mean read depth across all covered bases (vertical genome coverage)',
             'format':'{:,.1f}',},
-        'Lineage': {'title': 'Lineage'},
-        'Continent': {'title': 'Continent'}
+        'Lineage': {
+            'title': 'Lineage'},
+            'description':'Genus (g_) and species (s_) for microbe identified by MIDAS2 ',
+        'Continent': {
+            'title': 'Continent',
+            'description':'Source of reference genome in MIDAS2 database'}
     }
 
     # Convert the DataFrame to the required format

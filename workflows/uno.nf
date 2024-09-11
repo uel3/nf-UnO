@@ -87,6 +87,14 @@ if ( params.host_genome ) {
 if (params.checkm_db) {
     ch_checkm_db = file(params.checkm_db, checkIfExists: true)
 }
+// Check if user provided MIDAS2 DB
+if (params.midas2_uhgg_db) {
+    ch_midas2_db = Channel.value(file(params.midas2_uhgg_db, checkIfExists: true))
+    ch_midas2_db_metadata = Channel.value(file("${params.midas2_uhgg_db}/metadata.tsv", checkIfExists: true))
+} else {
+    ch_midas2_db = Channel.empty()
+    ch_midas2_db_metadata = Channel.empty()
+}
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -117,17 +125,19 @@ workflow UNO {
     ch_raw_short_reads  = INPUT_CHECK.out.raw_short_reads
     ch_raw_long_reads   = INPUT_CHECK.out.raw_long_reads
     if ( !params.skip_midas2 ){
-        MIDAS2_DB (
-        
-    )
-        ch_versions = ch_versions.mix(MIDAS2_DB.out.midas2_db_version)
-        MIDAS2_SPECIES_SNPS (MIDAS2_DB.out.midas2_db,
+        if ( !params.midas2_uhgg_db ) {
+            MIDAS2_DB()
+            ch_midas2_db = MIDAS2_DB.out.midasdb
+            ch_midas2_db_metadata = MIDAS2_DB.out.metadata
+            ch_versions = ch_versions.mix(MIDAS2_DB.out.versions)
+        }
+        MIDAS2_SPECIES_SNPS (ch_midas2_db,
             ch_raw_short_reads
-    )
-    ch_versions = ch_versions.mix(MIDAS2_SPECIES_SNPS.out.versions.first())
-        MIDAS2_PARSE_GENUS_SPECIES (MIDAS2_DB.out.midas2_db_metadata, 
+        )
+        ch_versions = ch_versions.mix(MIDAS2_SPECIES_SNPS.out.versions.first())
+        MIDAS2_PARSE_GENUS_SPECIES (ch_midas2_db_metadata, 
             MIDAS2_SPECIES_SNPS.out.midas2_snps
-    )
+        )
         ch_versions = ch_versions.mix(MIDAS2_PARSE_GENUS_SPECIES.out.versions.first())
         midas2_reports = MIDAS2_PARSE_GENUS_SPECIES.out.snps_id_list.map { it[1] }.collect()
         COMBINE_MIDAS2_REPORTS (midas2_reports)
