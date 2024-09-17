@@ -74,7 +74,7 @@ def combine_midas2_reports(input_files, output_file):
         'pconfig': {
             'id': 'midas2_species_abundance',
             'title': 'MIDAS2 Species Abundance',
-            'col1_header': 'SampleName_SpeciesID',
+            'col1_header': 'SampleName_MIDAS2SpeciesID',
             "scale": False,
         },
         'headers': headers,
