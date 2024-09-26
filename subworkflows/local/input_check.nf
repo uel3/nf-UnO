@@ -26,7 +26,7 @@ workflow INPUT_CHECK {
                             def group = row.group ?: error("Group is missing in the input samplesheet.")
                             def sr1 = row.short_reads_1 ? file(row.short_reads_1, checkIfExists: true) : error("short_reads_1 is missing or invalid.")
                             def sr2 = row.short_reads_2 ? file(row.short_reads_2, checkIfExists: true) : error("sr2 is missing or invalid.")
-                            def lr = row.long_reads ? file(row.long_reads, checkIfExists: true) : null
+                            def lr = row.containsKey('long_reads') && row.long_reads ? file(row.long_reads, checkIfExists: true) : null
                             // Check if given combination is valid
                             //if (run != null && run == "") exit 1, "ERROR: Please check input samplesheet -> Column 'run' contains an empty field. Either remove column 'run' or fill each field with a value."
                             if (!sr1 || !sr2) {
