@@ -88,7 +88,7 @@ Current output of the draft UnO output consists of the user specified <OUTDIR> w
 For more details about the output files and reports, please refer to the
 [output documentation](https://github.com/uel3/nf-core-uno/wiki/Output).
 <p align="center">
-  <img src="images/multiqc_general_stats.png" alt="General Stats Table with FastQC Results" width="750">
+  <img src="images/mqc_gen_stats.png" alt="General Stats Table with FastQC Results" width="750">
 </p>
 
 ## Credits
