@@ -12,3 +12,4 @@ multiqc/
 subworkflows/local/test.nf
 modules/local/midas2/Dockerfile
 modules/local/midas2/Singularity
+conf/midas2_test.config

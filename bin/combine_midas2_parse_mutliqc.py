@@ -55,8 +55,8 @@ def combine_midas2_reports(input_files, output_file):
             'description':'Mean read depth across all covered bases (vertical genome coverage)',
             'format':'{:,.1f}',},
         'Lineage': {
-            'title': 'Lineage'},
-            'description':'Genus (g_) and species (s_) for microbe identified by MIDAS2 ',
+            'title': 'Lineage',
+            'description':'Genus (g_) and species (s_) for microbe identified by MIDAS2 '},
         'Continent': {
             'title': 'Continent',
             'description':'Source of reference genome in MIDAS2 database'}
@@ -74,7 +74,7 @@ def combine_midas2_reports(input_files, output_file):
         'pconfig': {
             'id': 'midas2_species_abundance',
             'title': 'MIDAS2 Species Abundance',
-            'col1_header': 'SampleName_SpeciesID',
+            'col1_header': 'SampleName_MIDAS2SpeciesID',
             "scale": False,
         },
         'headers': headers,

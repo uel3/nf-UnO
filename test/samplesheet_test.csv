@@ -1,0 +1,6 @@
+sample,group,short_reads_1,short_reads_2,long_reads
+SRR5058928,UnO,/nf-core-uno/test/reads/SRR5058928_1.fastq.gz,/nf-core-uno/test/reads/SRR5058928_2.fastq.gz,
+SRR5058922,UnO,/nf-core-uno/test/reads/SRR5058922_1.fastq.gz,/nf-core-uno/test/reads/SRR5058922_2.fastq.gz,
+SRR5058919,UnO,/nf-core-uno/test/reads/SRR5058919_1.fastq.gz,/nf-core-uno/test/reads/SRR5058919_2.fastq.gz,
+SRR5058921,UnO,/nf-core-uno/test/reads/SRR5058921_1.fastq.gz,/nf-core-uno/test/reads/SRR5058921_2.fastq.gz,
+SRR5058923,UnO,/nf-core-uno/test/reads/SRR5058923_1.fastq.gz,/nf-core-uno/test/reads/SRR5058923_2.fastq.gz,

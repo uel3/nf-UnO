@@ -127,15 +127,19 @@ workflow UNO {
     if ( !params.skip_midas2 ){
         if ( !params.midas2_uhgg_db ) {
             MIDAS2_DB()
-            ch_midas2_db = MIDAS2_DB.out.midasdb
-            ch_midas2_db_metadata = MIDAS2_DB.out.metadata
+            ch_midas2_db_for_snps = MIDAS2_DB.out.midasdb
+            ch_midas2_db_metadata_for_parse = MIDAS2_DB.out.metadata
             ch_versions = ch_versions.mix(MIDAS2_DB.out.versions)
+        } else {
+            ch_midas2_db_for_snps = ch_midas2_db
+            ch_midas2_db_metadata_for_parse = ch_midas2_db_metadata
         }
-        MIDAS2_SPECIES_SNPS (ch_midas2_db,
+        
+        MIDAS2_SPECIES_SNPS (ch_midas2_db_for_snps,
             ch_raw_short_reads
         )
         ch_versions = ch_versions.mix(MIDAS2_SPECIES_SNPS.out.versions.first())
-        MIDAS2_PARSE_GENUS_SPECIES (ch_midas2_db_metadata, 
+        MIDAS2_PARSE_GENUS_SPECIES (ch_midas2_db_metadata_for_parse, 
             MIDAS2_SPECIES_SNPS.out.midas2_snps
         )
         ch_versions = ch_versions.mix(MIDAS2_PARSE_GENUS_SPECIES.out.versions.first())
