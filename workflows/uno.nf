@@ -53,6 +53,7 @@ include { DEPTHS                        } from '../subworkflows/local/depths'
 include { CHECKM_QC                     } from '../subworkflows/local/checkm_qc'
 include { CHECKM_MULTIQC_REPORT         } from '../modules/local/checkm_multiqc_report'
 include { COMBINE_MIDAS2_REPORTS        } from '../modules/local/combine_midas2_parse_multiqc'
+include { MIDAS2_HEATMAP                } from '../modules/local/midas2_heatmap'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -146,6 +147,8 @@ workflow UNO {
         midas2_reports = MIDAS2_PARSE_GENUS_SPECIES.out.snps_id_list.map { it[1] }.collect()
         COMBINE_MIDAS2_REPORTS (midas2_reports)
         ch_versions = ch_versions.mix(COMBINE_MIDAS2_REPORTS.out.versions.first())
+        MIDAS2_HEATMAP (COMBINE_MIDAS2_REPORTS.out.combined_report)
+        ch_versions = ch_versions.mix(MIDAS2_HEATMAP.out.versions.first())
     }
 
     // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
@@ -325,6 +328,7 @@ workflow UNO {
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_RAW.out.raw_reads.collect{it[1]}.ifEmpty([]))
     if ( !params.skip_midas2 ){ch_multiqc_files = ch_multiqc_files.mix(COMBINE_MIDAS2_REPORTS.out.combined_report.collect().ifEmpty([]))}
+    if ( !params.skip_midas2 ){ch_multiqc_files = ch_multiqc_files.mix(MIDAS2_HEATMAP.out.midas2_mqc_heatmap.collect().ifEmpty([]))}
     ch_multiqc_files = ch_multiqc_files.mix(TRIMMOMATIC.out.summary.collect{it[1]}.ifEmpty([]))
     if ( (params.host_fasta || params.host_genome) &&!params.skip_host_removal ) {ch_multiqc_files = ch_multiqc_files.mix(BT2_HOST_REMOVAL_ALIGN.out.log.collect{it[1]}.ifEmpty([]))}
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMMED.out.raw_reads.collect{it[1]}.ifEmpty([]))
