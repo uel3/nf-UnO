@@ -16,6 +16,7 @@ process METABAT2_METABAT2 {
     tuple val(meta), path("*.unbinned.fa.gz")                    , optional:true, emit: unbinned
     tuple val(meta), path("*.tsv.gz")                            , optional:true, emit: membership
     tuple val(meta), path("*[!lowDepth|tooShort|unbinned].fa.gz"), optional:true, emit: fasta
+    tuple val(meta), path("*.log")                               , optional:true, emit: log
     path "versions.yml"                                                         , emit: versions
 
     when:
