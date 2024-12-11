@@ -36,6 +36,8 @@ process METABAT2_METABAT2 {
         $depth_file \\
         -t $task.cpus \\
         --saveCls \\
+        -v \\
+        -d \\
         -o ${prefix}
 
     gzip -cn ${prefix} > ${prefix}.tsv.gz

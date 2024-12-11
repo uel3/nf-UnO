@@ -52,7 +52,7 @@ process DASTOOL_DASTOOL {
         -t $task.cpus \\
         -i $bin_list \\
         -c $clean_contigs \\
-        -o $prefix
+        -o $prefix 
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
