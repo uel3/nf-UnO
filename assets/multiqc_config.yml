@@ -35,7 +35,14 @@ custom_data:
     file_format: 'yaml'
     section_name: "MIDAS2 Species Abundance"
     description: 'MIDAS2 species abundance of raw reads using MIDAS2. MIDAS2 uses the Unified Human Gastrointestinal Genome (UHGG) database to check reads prior to assembly and binning for known bugs missed by conventional testing.'
-  
+  #midas2_species_heatmap:
+      #id: 'midas2_species_heatmap'
+      #section_name: "MIDAS2 Species Abundance"
+      #description: 'MIDAS2 species abundace of raw reads using MIDAS2. The heatmap shows the common pathogen lineages idenitifed in more than 25% of mNGS samples. The heatmap colors represent the fraction coverage of the nMGS across the length of the matching reference genome from the Unified Human Gastrointestinal Genome (UHGG) database.'
+      #plot_type: 'heatmap'
+        #pconfig:
+          #id: 'midas2_species_heatmap'
+        #sort_rows: true 
   bin_depth_heatmap_dastool:
       id: 'bin_depth_heatmap_dastool'
       section_name: 'Binning:Sample Coverage of DASTool Bins'
@@ -68,6 +75,8 @@ custom_data:
 sp:
   midas2_species_abundance:
     fn: 'combined_midas2_report_mqc.yaml'
+  midas2_species_heatmap:
+    fn: 'midas2_heatmap_mqc.txt'
   bin_depth_heatmap_dastool:
     fn: '*DASTool*heatmap_data.txt'
   bin_depth_heatmap_maxbin2:
@@ -171,6 +180,8 @@ report_section_order:
     order: 70
   midas2_species_abundance:
     order: 120
+  midas2_species_heatmap:
+    order: 125
   fastqc:
     order: 110
   fastqc_status_checks:
