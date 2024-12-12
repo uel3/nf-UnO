@@ -44,7 +44,8 @@ include { MIDAS2_DB                     } from '../subworkflows/local/midas2dbbu
 include { MIDAS2_SPECIES_SNPS           } from '../modules/local/midas2/speciessnps'
 include { MIDAS2_PARSE_GENUS_SPECIES    } from '../modules/local/midas2/parse_genus_species'
 include { BT2_HOST_REMOVAL_BUILD        } from '../modules/local/bowtie2/bt2_host_removal_build'
-include { BT2_HOST_REMOVAL_ALIGN        } from '../modules/local/bowtie2/bt2_host_removal_align'
+include { HOST_REMOVAL                  } from '../subworkflows/local/host_removal'
+//include { BT2_HOST_REMOVAL_ALIGN        } from '../modules/local/bowtie2/bt2_host_removal_align'
 //include { BT2_HOST_REMOVAL_ALIGN_VERIFY } from '../modules/local/bowtie2/bt2_host_removal_align_verify'
 include { BINNING_PREP                  } from '../subworkflows/local/binning_prep'
 include { BINNING                       } from '../subworkflows/local/binning'
@@ -177,14 +178,21 @@ workflow UNO {
             ch_host_bowtie2index = BT2_HOST_REMOVAL_BUILD.out.index
     }
     ch_bowtie2_removal_host_multiqc = Channel.empty()
+    ch_bowtie2_removal_verify_multiqc = Channel.empty()
     if ((params.host_fasta || params.host_genome) && !params.skip_host_removal){
-        BT2_HOST_REMOVAL_ALIGN (
-            ch_short_reads_prepped,
-            ch_host_bowtie2index
-        )
-        ch_short_reads_hostremoved = BT2_HOST_REMOVAL_ALIGN.out.reads
-        ch_bowtie2_removal_host_multiqc = BT2_HOST_REMOVAL_ALIGN.out.log
-        ch_versions = ch_versions.mix(BT2_HOST_REMOVAL_ALIGN.out.versions.first())
+            HOST_REMOVAL (
+                ch_short_reads_prepped,
+                ch_host_bowtie2index
+            )
+            ch_short_reads_hostremoved = HOST_REMOVAL.out.reads
+            ch_versions = ch_versions.mix(HOST_REMOVAL.out.versions.first())
+        //BT2_HOST_REMOVAL_ALIGN (
+            //ch_short_reads_prepped,
+            //ch_host_bowtie2index
+        //)
+        //ch_short_reads_hostremoved = BT2_HOST_REMOVAL_ALIGN.out.reads
+        //ch_bowtie2_removal_host_multiqc = BT2_HOST_REMOVAL_ALIGN.out.log
+        //ch_versions = ch_versions.mix(BT2_HOST_REMOVAL_ALIGN.out.versions.first())
         
         //BT2_HOST_REMOVAL_ALIGN_VERIFY (   //this is meant to show the efficiency of host removal step 
             //ch_short_reads_hostremoved,
@@ -330,7 +338,8 @@ workflow UNO {
     if ( !params.skip_midas2 ){ch_multiqc_files = ch_multiqc_files.mix(COMBINE_MIDAS2_REPORTS.out.combined_report.collect().ifEmpty([]))}
     //if ( !params.skip_midas2 ){ch_multiqc_files = ch_multiqc_files.mix(MIDAS2_HEATMAP.out.midas2_mqc_heatmap.collect().ifEmpty([]))}
     ch_multiqc_files = ch_multiqc_files.mix(TRIMMOMATIC.out.summary.collect{it[1]}.ifEmpty([]))
-    if ( (params.host_fasta || params.host_genome) &&!params.skip_host_removal ) {ch_multiqc_files = ch_multiqc_files.mix(BT2_HOST_REMOVAL_ALIGN.out.log.collect{it[1]}.ifEmpty([]))}
+    if ( (params.host_fasta || params.host_genome) &&!params.skip_host_removal ) {ch_multiqc_files = ch_multiqc_files.mix(HOST_REMOVAL.out.removal_logs.collect{it[1]}.ifEmpty([]))}
+    if ( (params.host_fasta || params.host_genome) &&!params.skip_host_removal ) {ch_multiqc_files = ch_multiqc_files.mix(HOST_REMOVAL.out.verify_logs.collect{it[1]}.ifEmpty([]))}
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMMED.out.raw_reads.collect{it[1]}.ifEmpty([]))
     if (!params.skip_binning){ch_multiqc_files = ch_multiqc_files.mix(DEPTHS.out.multiqc_heatmap.collect().ifEmpty([]))}
     if (!params.skip_binqc){ch_multiqc_files = ch_multiqc_files.mix(CHECKM_MULTIQC_REPORT.out.checkm_mqc_report.collect().ifEmpty([]))}

@@ -14,8 +14,8 @@ process BT2_HOST_REMOVAL_ALIGN_VERIFY {
     path  index
 
     output:
-    //tuple val(meta), path("*.unmapped*.fastq.gz") , emit: reads
-    //path  "*.mapped*.read_ids.txt", optional:true , emit: read_ids
+    tuple val(meta), path("*.verify.unmapped*.fastq.gz") , emit: reads_verify
+    path  "*.verify.mapped*.read_ids.txt", optional:true , emit: read_ids_verify
     tuple val(meta), path("*.bowtie2_verify.log") , emit: log
     path "versions.yml"                           , emit: versions
 
@@ -29,15 +29,19 @@ process BT2_HOST_REMOVAL_ALIGN_VERIFY {
             -x ${index[0].getSimpleName()} \
             -1 "${reads[0]}" -2 "${reads[1]}" \
             $args \
-            --un-conc-gz ${prefix}.unmapped_%.fastq.gz \
-            --al-conc-gz ${prefix}.mapped_%.fastq.gz \
+            --un-conc-gz ${prefix}.verify.unmapped_%.fastq.gz \
+            --al-conc-gz ${prefix}.verify.mapped_%.fastq.gz \
             1> /dev/null \
             2> ${prefix}.bowtie2_verify.log
-    if [ ${save_ids} = "Y" ] ; then
-        gunzip -c ${prefix}.mapped_1.fastq.gz | awk '{if(NR%4==1) print substr(\$0, 2)}' | LC_ALL=C sort > ${prefix}.mapped_1.read_ids.txt
-        gunzip -c ${prefix}.mapped_2.fastq.gz | awk '{if(NR%4==1) print substr(\$0, 2)}' | LC_ALL=C sort > ${prefix}.mapped_2.read_ids.txt
+    if [ ! -f ${prefix}.verify.unmapped_1.fastq.gz ]; then
+        cp "${reads[0]}" ${prefix}.verify.unmapped_1.fastq.gz
+        cp "${reads[1]}" ${prefix}.verify.unmapped_2.fastq.gz
     fi
-    rm -f ${prefix}.mapped_*.fastq.gz
+    if [ ${save_ids} = "Y" ] ; then
+        gunzip -c ${prefix}.verify.mapped_1.fastq.gz | awk '{if(NR%4==1) print substr(\$0, 2)}' | LC_ALL=C sort > ${prefix}.verify.mapped_1.read_ids.txt
+        gunzip -c ${prefix}.verify.mapped_2.fastq.gz | awk '{if(NR%4==1) print substr(\$0, 2)}' | LC_ALL=C sort > ${prefix}.verify.mapped_2.read_ids.txt
+    fi
+    rm -f ${prefix}.verify.mapped_*.fastq.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
