@@ -51,6 +51,7 @@ include { BINNING_PREP                  } from '../subworkflows/local/binning_pr
 include { BINNING                       } from '../subworkflows/local/binning'
 include { DASTOOL_BINNING_REFINEMENT    } from '../subworkflows/local/dastool_binning_refinement'
 include { DEPTHS                        } from '../subworkflows/local/depths'
+include { GTDBTK                        } from '../subworkflows/local/gtdbtk'
 include { CHECKM_QC                     } from '../subworkflows/local/checkm_qc'
 include { CHECKM_MULTIQC_REPORT         } from '../modules/local/checkm_multiqc_report'
 include { COMBINE_MIDAS2_REPORTS        } from '../modules/local/combine_midas2_parse_multiqc'
