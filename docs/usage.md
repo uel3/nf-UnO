@@ -38,7 +38,7 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/uno --input ./samplesheet.csv --host_genome 'GRCh38' --outdir ./results -profile conda -c yourconfig.config
+nextflow run uel3/nf-uno --input ./samplesheet.csv --host_genome 'GRCh38' --outdir ./results -profile conda -c yourconfig.config
 ```
 
 This will launch the pipeline with the `conda` configuration profile. See below for more information about profiles.
