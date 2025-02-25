@@ -43,13 +43,13 @@ Conda is required for the MIDAS2 process therefore, we recommend using conda for
 
 When Nextflow and conda are installed, clone the pipeline:
 ```console
-git clone https://github.com/uel3/nf-core-uno
+git clone https://github.com/uel3/nf-uno
 ```
 
 Next, test it on the minimal dataset provided using the test.config:
 
 ```console
-nextflow run nf-core-uno -profile conda,test --outdir <OUTDIR>
+nextflow run uel3/nf-uno -profile conda,test --outdir <OUTDIR>
 ```
 
 <!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
@@ -74,7 +74,7 @@ Now, you can run the pipeline using:
 <!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
-nextflow run nf-core-uno \
+nextflow run uel3/nf-uno \
    -profile <conda/institute> \
    --input samplesheet.csv \
    --outdir <OUTDIR>
