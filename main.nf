@@ -52,7 +52,7 @@ include { UNO } from './workflows/uno'
 //
 // WORKFLOW: Run main nf-uno analysis pipeline
 //
-workflow NF_CORE_UNO {
+workflow NFCORE_UNO {
     UNO ()
 }
 
