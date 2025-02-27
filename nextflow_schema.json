@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/uno/master/nextflow_schema.json",
-    "title": "nf-core/uno pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/nf-uno/master/nextflow_schema.json",
+    "title": "nf-uno pipeline parameters",
     "description": "metagenomic analysis pipeline of multiple sample for The UnO Project",
     "type": "object",
     "definitions": {

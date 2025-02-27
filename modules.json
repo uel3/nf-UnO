@@ -1,6 +1,6 @@
 {
-    "name": "nf-core/uno",
-    "homePage": "https://github.com/nf-core/uno",
+    "name": "nf-uno",
+    "homePage": "https://github.com/uel3/nf-uno",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {
