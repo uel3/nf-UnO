@@ -1,11 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/uno
+    nf-uno
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/uno
-    Website: https://nf-co.re/uno
-    Slack  : https://nfcore.slack.com/channels/uno
+    Github : https://github.com/uel3/nf-uno
 ----------------------------------------------------------------------------------------
 */
 
@@ -49,12 +47,12 @@ WorkflowMain.initialise(workflow, params, log, args)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { UNO } from './workflows/uno'
+include { UNO } from './workflows/nf-uno'
 
 //
-// WORKFLOW: Run main nf-core/uno analysis pipeline
+// WORKFLOW: Run main nf-uno analysis pipeline
 //
-workflow NFCORE_UNO {
+workflow UNO {
     UNO ()
 }
 
@@ -69,7 +67,7 @@ workflow NFCORE_UNO {
 // See: https://github.com/nf-core/rnaseq/issues/619
 //
 workflow {
-    NFCORE_UNO ()
+    UNO ()
 }
 
 /*
