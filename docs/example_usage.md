@@ -2,6 +2,7 @@
 
 nf-UnO was run on an Salmonella outbreak set of data which can be accessioned from the Sequence Read Archive using the following IDs:
 
+
 SRR5058919
 SRR5058920
 SRR5058921
@@ -69,20 +70,20 @@ In the docs folder [https://github.com/uel3/nf-UnO/tree/master/docs] there is a 
 Below is a breakdown of each section of the MultiQC Report:
 
 ### General Stats
-![General Stats](https://octodex.github.com/images/minion.png)
+![General Stats](https://github.com/uel3/nf-UnO/blob/master/images/general_stats.svg)
 
 ### MIDAS2 Species Abundance
-![MIDAS2]()
+![MIDAS2](https://github.com/uel3/nf-UnO/blob/master/images/NFUNOmidas2.svg)
 ### FastQC: Raw Reads
-![FastQC: Raw Reads]()
+![FastQC: Raw Reads](https://github.com/uel3/nf-UnO/blob/master/images/FastqcRaw.svg)
 ### Bowtie2: Host Removal 
-![Host Removal]()
+![Host Removal](https://github.com/uel3/nf-UnO/blob/master/images/BT2HostRemoval.svg)
 ### FastQC: After Preprocessing
-![FastQC: After Preprocessing]()
+![FastQC: After Preprocessing](https://github.com/uel3/nf-UnO/blob/master/images/FastqcPostPreProcess.svg)
 ### Binning: Sample Coverage of DASTool Bins
-![Binning]()
+![Binning](https://github.com/uel3/nf-UnO/blob/master/images/Binning.svg)
 ### CheckM: Bin Quality Statistics
-![CheckM]()
+![CheckM](https://github.com/uel3/nf-UnO/blob/master/images/checkm.svg)
 ### nf-uno Workflow Summary
 
 ### nf-uno Software Versions
