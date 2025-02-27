@@ -69,19 +69,20 @@ In the docs folder [https://github.com/uel3/nf-UnO/tree/master/docs] there is a 
 Below is a breakdown of each section of the MultiQC Report:
 
 ### General Stats
+![General Stats](https://octodex.github.com/images/minion.png)
 
 ### MIDAS2 Species Abundance
-
+![MIDAS2]()
 ### FastQC: Raw Reads
-
+![FastQC: Raw Reads]()
 ### Bowtie2: Host Removal 
-
-### FastQc: After Preprocessing
-
+![Host Removal]()
+### FastQC: After Preprocessing
+![FastQC: After Preprocessing]()
 ### Binning: Sample Coverage of DASTool Bins
-
+![Binning]()
 ### CheckM: Bin Quality Statistics
-
+![CheckM]()
 ### nf-uno Workflow Summary
 
 ### nf-uno Software Versions
