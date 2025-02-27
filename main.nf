@@ -47,12 +47,12 @@ WorkflowMain.initialise(workflow, params, log, args)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { UNO } from './workflows/nf-uno'
+include { UNO } from './workflows/uno'
 
 //
 // WORKFLOW: Run main nf-uno analysis pipeline
 //
-workflow UNO {
+workflow NF_CORE_UNO {
     UNO ()
 }
 
@@ -67,7 +67,7 @@ workflow UNO {
 // See: https://github.com/nf-core/rnaseq/issues/619
 //
 workflow {
-    UNO ()
+    NFCORE_UNO ()
 }
 
 /*
