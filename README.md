@@ -2,7 +2,7 @@
 
 ## Introduction
 
-**nf-core/uno** is a bioinformatics pipeline for the co-assembly, binning, and read mapping of mNGS outbreak samples from the **The UnO project** 
+**nf-uno** is a bioinformatics pipeline for the co-assembly, binning, and read mapping of mNGS outbreak samples from the **The UnO project** 
 
 <!-- TODO nf-core:
    Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
@@ -84,13 +84,13 @@ nextflow run nf-uno \
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
 > see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
-For more details and further functionality, please refer to the [usage documentation](https://github.com/uel3/nf-core-uno/blob/master/docs/usage.md) and the [parameter documentation](https://github.com/uel3/nf-core-uno/blob/master/docs/parameters.md).
+For more details and further functionality, please refer to the [usage documentation](https://github.com/uel3/nf-core-uno/blob/master/docs/usage.md) and the [parameter documentation](https://github.com/uel3/nf-uno/blob/master/docs/parameters.md).
 
 ## Pipeline output
 
 Current output of the draft UnO output consists of the user specified <OUTDIR> with following directories: Assembly, FastQC, GenomeBinning, multiqc, pipeline_info, QC_shortreads, and Trimmomatic. 
 For more details about the output files and reports, please refer to the
-[output documentation](https://github.com/uel3/nf-core-uno/wiki/Output).
+[output documentation](https://github.com/uel3/nf-uno/wiki/Output).
 <p align="center">
   <img src="images/mqc_gen_stats.png" alt="General Stats Table with FastQC Results" width="750">
 </p>
