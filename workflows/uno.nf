@@ -159,6 +159,7 @@ workflow UNO {
         ch_raw_short_reads,
         'raw'
     )
+    ch_versions = ch_versions.mix(FASTQC_RAW.out.versions.first())
     TRIMMOMATIC {
         ch_raw_short_reads
     }
@@ -196,6 +197,7 @@ workflow UNO {
         ch_short_reads_hostremoved,
         'trimmed'
     )
+    ch_versions = ch_versions.mix(FASTQC_TRIMMED.out.versions.first())
     ch_short_reads_assembly = Channel.empty()
     ch_short_reads_assembly = ch_short_reads_hostremoved
         .map {meta, reads ->
