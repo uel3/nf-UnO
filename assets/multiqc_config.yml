@@ -183,8 +183,6 @@ report_section_order:
     order: 10
   software_versions:
     order: 30
-  multiqc_software_versions:
-    order: 20
   "nf-uno-summary":
     order: 40
 section_comments:
