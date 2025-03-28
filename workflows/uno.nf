@@ -53,6 +53,9 @@ include { DEPTHS                        } from '../subworkflows/local/depths'
 include { CHECKM_QC                     } from '../subworkflows/local/checkm_qc'
 include { CHECKM_MULTIQC_REPORT         } from '../modules/local/checkm_multiqc_report'
 include { COMBINE_MIDAS2_REPORTS        } from '../modules/local/combine_midas2_parse_multiqc'
+include { GTDB_DB_DOWNLOAD              } from '../modules/local/gtdb_download'
+include { GTDBTK                        } from '../subworkflows/local/gtdbtk'
+include { GTDB_MULTIQC_REPORT           } from '../modules/local/gtdb_multiqc_report'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -95,6 +98,11 @@ if (params.midas2_uhgg_db) {
     ch_midas2_db = Channel.empty()
     ch_midas2_db_metadata = Channel.empty()
 }
+if (params.skip_gtdbtk ? false : params.gtdb_db) {
+        gtdb = file(params.gtdb_db, checkIfExists: true)
+}
+
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -289,14 +297,17 @@ workflow UNO {
             ch_input_for_postbinning_bins        = ch_binning_results_bins
             ch_input_for_postbinning_bins_unbins = ch_binning_results_bins.mix(ch_binning_results_unbins)
         }
-        
-            DEPTHS ( ch_input_for_postbinning_bins_unbins, BINNING.out.metabat2depths, ch_short_reads_assembly )
+        ch_input_for_postbinning = params.exclude_unbins_from_postbinning
+            ? ch_input_for_postbinning_bins
+            : ch_input_for_postbinning_bins_unbins
+
+            DEPTHS ( ch_input_for_postbinning, BINNING.out.metabat2depths, ch_short_reads_assembly )
                 ch_input_for_binsummary = DEPTHS.out.depths_summary
                 ch_versions = ch_versions.mix(DEPTHS.out.versions)
     /*
     * Bin QC for checking bin completeness with CHECKM
     */
-            ch_input_bins_for_qc = ch_input_for_postbinning_bins_unbins.transpose()
+            ch_input_bins_for_qc = ch_input_for_postbinning.transpose()
             if (!params.skip_binqc){
                 CHECKM_QC (
                         ch_input_bins_for_qc.groupTuple(),
@@ -309,7 +320,34 @@ workflow UNO {
                 ch_checkm_report = CHECKM_MULTIQC_REPORT.out.checkm_mqc_report
                 ch_versions = ch_versions.mix(CHECKM_MULTIQC_REPORT.out.versions)
             }
-    }
+     /*
+     * Taxonomic classification of bins with GTDB
+     */      
+            if ( !params.skip_gtdbtk && !params.gtdb_db ) {
+                GTDB_DB_DOWNLOAD(params.gtdb_download_url)
+                gtdb = GTDB_DB_DOWNLOAD.out.downloaded_file
+            }
+
+            ch_gtdbtk_summary = Channel.empty()
+            if (!params.skip_gtdbtk){
+                ch_gtdb_bins = ch_input_for_postbinning
+                    .map { meta, bins -> 
+                        // Ensure bins is a proper path object, not an ArrayBag
+                        [meta, bins.flatten()]
+                    }
+                
+                GTDBTK(
+                    ch_gtdb_bins,
+                    gtdb,
+                )
+                ch_gtdbtk_summary = GTDBTK.out.bac_summary.map{ meta, file -> file}
+                ch_versions = ch_versions.mix(GTDBTK.out.versions.first())
+            }
+                GTDB_MULTIQC_REPORT(ch_gtdbtk_summary.collect())
+                ch_gtdb_summary_report =GTDB_MULTIQC_REPORT.out.gtdb_mqc_report
+                ch_versions = ch_versions.mix(GTDB_MULTIQC_REPORT.out.versions.first())
+        }
+    
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
@@ -332,6 +370,7 @@ workflow UNO {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMMED.out.raw_reads.collect{it[1]}.ifEmpty([]))
     if (!params.skip_binning){ch_multiqc_files = ch_multiqc_files.mix(DEPTHS.out.multiqc_heatmap.collect().ifEmpty([]))}
     if (!params.skip_binqc){ch_multiqc_files = ch_multiqc_files.mix(CHECKM_MULTIQC_REPORT.out.checkm_mqc_report.collect().ifEmpty([]))}
+    if (!params.skip_gtdbtk){ch_multiqc_files = ch_multiqc_files.mix(GTDB_MULTIQC_REPORT.out.gtdb_mqc_report.collect().ifEmpty([]))}
     MULTIQC (
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
