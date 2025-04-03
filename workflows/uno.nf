@@ -343,7 +343,7 @@ workflow UNO {
                 ch_gtdbtk_summary = GTDBTK.out.bac_summary.map{ meta, file -> file}
                 ch_versions = ch_versions.mix(GTDBTK.out.versions.first())
             }
-                GTDB_MULTIQC_REPORT(ch_gtdbtk_summary.collect())
+                GTDB_MULTIQC_REPORT(ch_gtdbtk_summary)
                 ch_gtdb_summary_report =GTDB_MULTIQC_REPORT.out.gtdb_mqc_report
                 ch_versions = ch_versions.mix(GTDB_MULTIQC_REPORT.out.versions.first())
         }
