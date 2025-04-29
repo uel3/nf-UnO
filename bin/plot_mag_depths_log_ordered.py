@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.patches import Patch
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
@@ -36,12 +37,15 @@ def main(args):
     groups = pd.read_csv(args.groups, sep="\t", index_col=0, names=["sample", "group"])
     # Count non-zero abundances for each bin
     non_zero_counts = (df > 0).sum(axis=1)
-        
+    
     # Sort bins by non-zero abundance count in descending order
     df_sorted = df.loc[non_zero_counts.sort_values(ascending=False).index]
     
+    # Store the zero mask for later use
+    zero_mask = (df_sorted == 0).values
+
     # Log transform the data, adding a small value to handle zeros
-    small_value = 1e-6  # can be changed for data scale
+    small_value = 1  # can be changed for data scale
     df_log = np.log10(df_sorted + small_value)
     # Prepare colors for group information
     color_map = dict(zip(groups["group"].unique(), sns.color_palette(n_colors=len(groups["group"].unique()))))
@@ -49,15 +53,31 @@ def main(args):
     # Plot heatmap
     plt.figure(figsize=(12, 10))
     bin_labels = True if len(df_log) <= 30 else False
+    vmin = 0.0001
+    vmax = 4
     g = sns.clustermap(
         df_log,
         row_cluster=False,  # Disable row clustering to maintain our custom order
         yticklabels=bin_labels,
-        cmap="vlag",
-        center=0,
+        cmap="Blues",
+        vmin=vmin,
+        vmax=vmax,
         col_colors=groups.group.map(color_map),
         figsize=(16, 18)
     )
+    # Add gray rectangles for zero values
+    ax = g.ax_heatmap
+    for i in range(zero_mask.shape[0]):
+        for j in range(zero_mask.shape[1]):
+            if zero_mask[i, j]:
+                ax.add_patch(plt.Rectangle((j, i), 1, 1, fill=True, color='lightgray'))
+    # Add legend for zero values
+    legend_elements = [Patch(facecolor='lightgray', label='Zero coverage')]
+    g.fig.legend(handles=legend_elements, loc='upper left', 
+              bbox_to_anchor=(1.02, 0.98), frameon=True, fontsize=9)
+    #Adjust layout to make room for the legend
+    plt.subplots_adjust(right=0.85)
+
     g.ax_heatmap.set_xlabel("Samples")
     g.ax_heatmap.set_ylabel("MAGs")
     plt.savefig(args.out)
