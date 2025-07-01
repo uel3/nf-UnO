@@ -4,6 +4,9 @@ report_comment: >
   <a href="https://nf-co.re/uno/dev/docs/output" target="_blank">documentation</a>.
 
 export_plots: true
+plots_force_flat: true  # Add this line here
+plots_flat_numseries: 1000  # Add this line here
+max_table_rows: 2000
 run_modules:
   - fastqc
   - bowtie2
@@ -50,6 +53,12 @@ custom_data:
       plot_type: 'heatmap'
       pconfig:
             id: 'bin_depth_heatmap_dastool'
+            colstops: [
+                [0, '#CCCCCC'],       # Gray for zeros
+                [0.0001, '#F7FBFF'],  # Lightest blue for near-zero values
+                [1, '#4292C6'],       # Medium blue for medium values 
+                [4, '#08306B']        # Dark blue for high values
+            ]
       sort_rows: true
   bin_depth_heatmap_maxbin2:
       id: 'bin_depth_heatmap_maxbin2'
@@ -58,6 +67,12 @@ custom_data:
       plot_type: 'heatmap'
       pconfig:
             id: 'bin_depth_heatmap_maxbin2'
+            colstops: [
+                [0, '#CCCCCC'],       # Gray for zeros
+                [0.0001, '#F7FBFF'],  # Lightest blue for near-zero values
+                [1, '#4292C6'],       # Medium blue for medium values 
+                [4, '#08306B']        # Dark blue for high values
+            ]
       sort_rows: true
   bin_depth_heatmap_metabat2:
       id: 'bin_depth_heatmap_metabat2'
@@ -66,12 +81,33 @@ custom_data:
       plot_type: 'heatmap'
       pconfig:
             id: 'bin_depth_heatmap_metabat2'
+            colstops: [
+                [0, '#CCCCCC'],       # Gray for zeros
+                [0.0001, '#F7FBFF'],  # Lightest blue for near-zero values
+                [1, '#4292C6'],       # Medium blue for medium values 
+                [4, '#08306B']        # Dark blue for high values
+            ]
       sort_rows: true
     
   checkm_multiqc_report:
     section_name: "CheckM:Bin Quality Statistics"
     description: "Quality assessment of genome bins using CheckM."
     plot_type: 'table'
+  gtdb_summary_unrefined_metabat2:
+      file_format: 'yaml'
+      section_name: 'GTDB Taxonomic Classifications of Unrefined MetaBat2 Bins'
+      description: "Taxonomic Classification of MetaBat2 genome bins using GTDB"
+      plot_type: 'table'
+  gtdb_summary_unrefined_maxbin2:
+      file_format: 'yaml'
+      section_name: 'GTDB Taxonomic Classifications of Unrefined MaxBin2 Bins'
+      description: "Taxonomic Classification of MaxBin2 genome bins using GTDB"
+      plot_type: 'table'
+  gtdb_summary_refined_dastool:
+      file_format: 'yaml'
+      section_name: 'GTDB Taxonomic Classifications of Refined DasTool Bins'
+      description: "Taxonomic Classification of DasTool genome bins using GTDB"
+      plot_type: 'table'
 sp:
   midas2_species_abundance:
     fn: 'combined_midas2_report_mqc.yaml'
@@ -85,6 +121,12 @@ sp:
     fn: '*MetaBAT2*heatmap_data.txt'
   checkm_multiqc_report:
     fn: '*checkm_report_mqc.yaml'
+  gtdb_summary_unrefined_metabat2:
+    fn: '*MetaBat2*gtdb_mqc.yml'
+  gtdb_summary_unrefined_maxbin2:
+    fn: '*MaxBin2*gtdb_mqc.yml'
+  gtdb_summary_refined_dastool:
+    fn: '*DASTool*gtdb_mqc.yml'
 ignore_images: false
 
 ## General Stats customisation
@@ -167,37 +209,39 @@ table_cond_formatting_colours:
   
 report_section_order:
   general_stats:
-    order: 130
+    order: 180
   bowtie2:
-    order: 100
+    order: 150
   checkm_stats:
-    order: 50
-  bin_depth_heatmap_dastool:
-    order: 80
-  bin_depth_heatmap_metabat2:
-    order: 60
-  bin_depth_heatmap_maxbin2:
+    order: 100
+  gtdb_summary_unrefined_metabat2:
     order: 70
-  midas2_species_abundance:
-    order: 120
-  midas2_species_heatmap:
-    order: 125
-  fastqc:
+  gtdb_summary_unrefined_maxbin2:
+    order: 80
+  gtdb_summary_refined_dastool:
+    order: 90
+  bin_depth_heatmap_dastool:
+    order: 130
+  bin_depth_heatmap_metabat2:
     order: 110
+  bin_depth_heatmap_maxbin2:
+    order: 120
+  midas2_species_abundance:
+    order: 170
+  fastqc:
+    order: 160
   fastqc_status_checks:
         order: -1000
   fastqc-1:
-    order: 90
+    order: 140
   fastqc_status_checks-1:
         order: -1000
-  "nf-core-uno-methods-description":
-    order: 10
-  software_versions:
-    order: 30
-  multiqc_software_versions:
-    order: 20
-  "nf-core-uno-summary":
+  "nf-uno-methods-description":
     order: 40
+  software_versions:
+    order: 50
+  "nf-uno-summary":
+    order: 60
 section_comments:
   general_stats: "The user can expect to find general information about the input mNGS reads before and after QC and adapter trimming. More details about input mNGS reds can be found in the detailed FastQC sections."
   midas2_species_abundance: "#####The user can see the taxonomic profile of the raw input mNGS reads from MIDAS2. The MIDAS2 Species Abundance table organizes the output by the unique ID made up of the mNGS read name provided by the user combined with the arbitrary species ID assigned by MIDAS2."
@@ -206,7 +250,10 @@ section_comments:
   fastqc_per_sequence_gc_content: "#####The user should expect to see a standard Bell curve around 50%. For FastQC: Raw Reads, this may not be the case due to low quality reads that show up in metagenomic sequencing before preproccessing. See FastQC: After Preprocessing results."
   fastqc_per_sequence_gc_content-1: "####The user should expect to see a standard Bell curve around 50%." 
   bowtie2: "#####The user can see the number of mNGS reads or percentage of mNGS reads per input read that align to the human host. The portion of mNGS reads in red are the only reads used in downstream processes, with human host sequences removed. mNGS reads that are blue, light blue, orange, or yellow are considered host reads are discarded, and not included in downstream analysis."
-  bin_depth_heatmap_dastool: "#####The user can see the how the individual mNGS contribute to the bins generated by DASTool. The bins represent species identified from all outbreak mNGS reads.  Bins with read depth values greater than -5.99 would indicate contribution by that individual mNGS read. Bins with read depth values equal to -6.0 would indicate no contribution by that individual mNGS read. Bins that have contributions from all individual mNGS reads will be considered potential etiological agents."
-  bin_depth_heatmap_maxbin2: "#####The user can see the how the individual mNGS contribute to the bins generated by MaxBin2. The bins represent species identified from all outbreak mNGS reads.  Bins with read depth values greater than -5.99 would indicate contribution by that individual mNGS read. Bins with read depth values equal to -6.0 would indicate no contribution by that individual mNGS read. Bins that have contributions from all individual mNGS reads will be considered potential etiological agents."
-  bin_depth_heatmap_metabat2: "#####The user can see the how the individual mNGS contribute to the bins generated by MetaBat2. The bins represent species identified from all outbreak mNGS reads.  Bins with read depth values greater than -5.99 would indicate contribution by that individual mNGS read. Bins with read depth values equal to -6.0 would indicate no contribution by that individual mNGS read. Bins that have contributions from all individual mNGS reads will be considered potential etiological agents."
+  bin_depth_heatmap_dastool: "#####The user can see the how the individual mNGS contribute to the bins generated by DASTool. The bins represent species identified from all outbreak mNGS reads.  Bins with read depth values greater than 0 would indicate contribution by that individual mNGS read. Bins with read depth values equal to 0 would indicate no contribution by that individual mNGS read. Bins that have contributions from all individual mNGS reads will be considered potential etiological agents."
+  bin_depth_heatmap_maxbin2: "#####The user can see the how the individual mNGS contribute to the bins generated by MaxBin2. The bins represent species identified from all outbreak mNGS reads.  Bins with read depth values greater than 0 would indicate contribution by that individual mNGS read. Bins with read depth values equal to 0 would indicate no contribution by that individual mNGS read. Bins that have contributions from all individual mNGS reads will be considered potential etiological agents."
+  bin_depth_heatmap_metabat2: "#####The user can see the how the individual mNGS contribute to the bins generated by MetaBat2. The bins represent species identified from all outbreak mNGS reads.  Bins with read depth values greater than 0 would indicate contribution by that individual mNGS read. Bins with read depth values equal to 0 would indicate no contribution by that individual mNGS read. Bins that have contributions from all individual mNGS reads will be considered potential etiological agents."
   checkm_stats: "#####The user can see the quality metrics of the species bins generated from all outbreak reads. The user can interpret the quality of the species bins based on combinations of the following metrics: completeness, contamination, and strain heterogeneity. Moderate to high quality bins will have >50% completeness and <10% contamination. Low quality bins will have completeness <50% and contamination <10%. Strain heterogeneity should be interpreted as the amount of contamination attributed to closely related species. Note the binning process is prone to binning closely related species together which can lead to contamination, but this type of contamination is not in any way related to mishandling in lab (ie contaminated specimens)."
+  gtdb_summary_refined_dastool: "#####The user can see the GTDB taxonomic classifations of the DASTool refined species bins from all the outbreak reads."
+  gtdb_summary_unrefined_maxbin2: "#####The user can see the GTDB taxonomic classifations of the unrefeined MaxBin2 species bins from all the outbreak reads."
+  gtdb_summary_unrefined_metabat2: "#####The user can see the GTDB taxonomic classifations of the unrefined MetaBat2 species bins from all the outbreak reads."

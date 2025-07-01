@@ -1,6 +1,4 @@
-# nf-core/uno: Usage
-
-## :warning: Please read this documentation on the nf-core website: [https://nf-co.re/uno/usage](https://nf-co.re/uno/usage)
+# nf-uno: Usage
 
 > _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
 
@@ -10,24 +8,25 @@
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the examples below.
 
 ```bash
 --input '[path to samplesheet file]'
 ```
 
-The `sample` identifiers have to be the same when for samples from the same outbreak. Below is an example for the same sample sequenced across 3 lanes:
+The `group` identifiers have to be the same when for samples from the same outbreak. Below is an example for the same sample sequenced across 3 lanes:
 
 ```csv title="samplesheet.csv"
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
+sample,group,fastq_1,fastq_2
+CONTROL_REP1,UNO,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+CONTROL_REP1,UNO,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
+CONTROL_REP1,UNO,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 ```
 
 | Column    | Description                                                                                                                                                                            |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same outbreak. Spaces in sample names are automatically converted to underscores (`_`). |
+| `sample`  | Custom sample name. Spaces in sample names are automatically converted to underscores (`_`).                                                                                           |
+| `group`   | Custom group name. This entry will be identical for multiple sequencing libraries/runs from the same outbreak                                                                          |
 | `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 
@@ -38,7 +37,7 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/uno --input ./samplesheet.csv --host_genome 'GRCh38' --outdir ./results -profile conda -c yourconfig.config
+nextflow run uel3/nf-uno --input ./samplesheet.csv --outdir ./results -profile conda -c yourconfig.config
 ```
 
 This will launch the pipeline with the `conda` configuration profile. See below for more information about profiles.
@@ -63,7 +62,7 @@ Do not use `-c <file>` to specify parameters as this will result in errors. Cust
 The above pipeline run specified with a params file in yaml format:
 
 ```bash
-nextflow run nf-core/uno -profile conda -params-file params.yaml
+nextflow run uel3/nf-uno -profile conda -params-file params.yaml
 ```
 
 with `params.yaml` containing:
@@ -81,14 +80,14 @@ You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-c
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
-nextflow pull nf-core/uno
+nextflow pull uel3/nf-uno
 ```
 
 ### Reproducibility
 
 It is a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
-First, go to the [nf-core/uno releases page](https://github.com/nf-core/uno/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
+First, go to the [nf-uno releases page](https://github.com/uel3/nf-uno/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future. For example, at the bottom of the MultiQC reports.
 
@@ -111,7 +110,7 @@ Use this parameter to choose a configuration profile. Profiles can give configur
 Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Apptainer, Conda) - see below.
 
 :::info
-We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
+Nextflow highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported. For nf-uno, users will need to use `-profile conda` for MIDAS2. 
 :::
 
 The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to see if your system is available in these configs please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).

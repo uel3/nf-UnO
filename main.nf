@@ -1,11 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/uno
+    nf-uno
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/uno
-    Website: https://nf-co.re/uno
-    Slack  : https://nfcore.slack.com/channels/uno
+    Github : https://github.com/uel3/nf-uno
 ----------------------------------------------------------------------------------------
 */
 
@@ -31,7 +29,7 @@ include { validateParameters; paramsHelp } from 'plugin/nf-validation'
 if (params.help) {
     def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
     def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
-    def String command = "nextflow run ${workflow.manifest.name} --input samplesheet.csv -c config -profile docker --oudir out"
+    def String command = "nextflow run ${workflow.manifest.name} --input samplesheet.csv -c config -profile conda --oudir out"
     log.info logo + paramsHelp(command) + citation + NfcoreTemplate.dashedLine(params.monochrome_logs)
     System.exit(0)
 }
@@ -52,7 +50,7 @@ WorkflowMain.initialise(workflow, params, log, args)
 include { UNO } from './workflows/uno'
 
 //
-// WORKFLOW: Run main nf-core/uno analysis pipeline
+// WORKFLOW: Run main nf-uno analysis pipeline
 //
 workflow NFCORE_UNO {
     UNO ()

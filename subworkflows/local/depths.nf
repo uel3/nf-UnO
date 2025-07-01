@@ -71,6 +71,7 @@ workflow DEPTHS {
     ch_versions = ch_versions.mix( MAG_DEPTHS_SUMMARY.out.versions )
 
     emit:
+    depths          = MAG_DEPTHS.out.depths
     depths_summary  = MAG_DEPTHS_SUMMARY.out.summary
     heatmap         = MAG_DEPTHS_PLOT.out.heatmap
     multiqc_heatmap = MAG_DEPTHS_PLOT.out.log_depths.map{ meta, file -> file }

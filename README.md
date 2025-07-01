@@ -2,7 +2,7 @@
 
 ## Introduction
 
-**nf-core/uno** is a bioinformatics pipeline for the co-assembly, binning, and read mapping of mNGS outbreak samples from the **The UnO project** 
+**nf-uno** is a bioinformatics pipeline for the co-assembly, binning, and read mapping of mNGS outbreak samples from the **The UnO project** 
 
 <!-- TODO nf-core:
    Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
@@ -34,18 +34,22 @@ UnO is an mNGS bioinformatics pipeline that supports **The UnO Project**. nf-cor
 
 ## Usage
 
+Running nf-uno requires Nextflow (`>=21.10.3`) and conda to be installed. There are detailed instructions below for Nextflow installation, including Nextflow's Bash and Java requirements. 
+Conda is required for the MIDAS2 process therefore, we recommend using conda for all required dependencies.
+
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
+> For conda installation, please refer to [this page](https://docs.conda.io/projects/conda/en/stable/user-guide/install/index.html).
 
-First, clone the pipeline:
+When Nextflow and conda are installed, clone the pipeline:
 ```console
-git clone https://github.com/uel3/nf-core-uno
+git clone https://github.com/uel3/nf-uno
 ```
 
 Next, test it on the minimal dataset provided using the test.config:
 
 ```console
-nextflow run nf-core-uno -profile conda,test --outdir <OUTDIR>
+nextflow run nf-uno -profile conda,test --outdir <OUTDIR>
 ```
 
 <!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
@@ -70,7 +74,7 @@ Now, you can run the pipeline using:
 <!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
-nextflow run nf-core-uno \
+nextflow run nf-uno \
    -profile <conda/institute> \
    --input samplesheet.csv \
    --outdir <OUTDIR>
@@ -80,20 +84,20 @@ nextflow run nf-core-uno \
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
 > see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
-For more details and further functionality, please refer to the [usage documentation](https://github.com/uel3/nf-core-uno/blob/master/docs/usage.md) and the [parameter documentation](https://github.com/uel3/nf-core-uno/blob/master/docs/parameters.md).
+For more details and further functionality, please refer to the [usage documentation](https://github.com/uel3/nf-core-uno/blob/master/docs/usage.md) and the [parameter documentation](https://github.com/uel3/nf-uno/blob/master/docs/parameters.md).
 
 ## Pipeline output
 
 Current output of the draft UnO output consists of the user specified <OUTDIR> with following directories: Assembly, FastQC, GenomeBinning, multiqc, pipeline_info, QC_shortreads, and Trimmomatic. 
 For more details about the output files and reports, please refer to the
-[output documentation](https://github.com/uel3/nf-core-uno/wiki/Output).
+[output documentation](https://github.com/uel3/nf-uno/wiki/Output).
 <p align="center">
   <img src="images/mqc_gen_stats.png" alt="General Stats Table with FastQC Results" width="750">
 </p>
 
 ## Credits
 
-uel3/uno is adapted by Candace Cole from nf-core/mag, written by Hadrien Gourlé at SLU, Daniel Straub and Sabrina Krakau at the Quantitative Biology Center (QBiC).
+uel3/nf-uno is adapted by Candace Cole from nf-core/mag, written by Hadrien Gourlé at SLU, Daniel Straub and Sabrina Krakau at the Quantitative Biology Center (QBiC).
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
