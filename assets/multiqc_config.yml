@@ -4,6 +4,9 @@ report_comment: >
   <a href="https://nf-co.re/uno/dev/docs/output" target="_blank">documentation</a>.
 
 export_plots: true
+plots_force_flat: true  # Add this line here
+plots_flat_numseries: 1000  # Add this line here
+max_table_rows: 2000
 run_modules:
   - fastqc
   - bowtie2
