@@ -9,13 +9,12 @@ workflow GTDBTK {
     
     main:
     // Use collect() to get the file out of the channel
-    if (gtdb.toString().endsWith('.tar.gz')) {
+    if (gtdb.extension == 'gz') {
         // Expects to be tar.gz!
         ch_db_for_gtdbtk = GTDBTK_DB_PREPARATION(gtdb).db
-    } else if (file(gtdb).isDirectory()) {
+    } else if (gtdb.isDirectory()) {
         // Directory handling - create a channel with the tuple
-        gtdb_dir = file(gtdb).listFiles()
-        ch_db_for_gtdbtk = Channel.value(["gtdb", gtdb_dir])
+        ch_db_for_gtdbtk = [gtdb.simpleName, gtdb]
     } else {
         error("Unsupported object given to --gtdb, database must be supplied as either a directory or a .tar.gz file!")
     }

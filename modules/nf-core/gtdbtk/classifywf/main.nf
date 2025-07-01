@@ -1,7 +1,7 @@
 process GTDBTK_CLASSIFYWF {
     tag "${prefix}"
     label 'process_medium'
-
+    
     // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -36,7 +36,7 @@ process GTDBTK_CLASSIFYWF {
 
     """
     export GTDBTK_DATA_PATH="\${PWD}/database"
-    if [ ${pplacer_scratch} != "" ] ; then
+    if [ "${pplacer_scratch}" != "" ] ; then
         mkdir pplacer_tmp
     fi
 

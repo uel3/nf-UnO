@@ -7,7 +7,29 @@ import os
 import re
 import argparse
 
-def make_simplified_report_yaml(output_file, data_df):
+def extract_binning_info(filename):
+    """Extract the binning method and refinement status from the GTDB-Tk filename"""
+    filename = filename.lower()
+    
+    # Extract binning method
+    if "maxbin2" in filename:
+        binning_method = "maxbin2"
+    elif "metabat2" in filename:
+        binning_method = "metabat2"
+    elif "dastool" in filename:
+        binning_method = "dastool"
+    else:
+        binning_method = "unknown"
+    
+    # Extract refinement status
+    if "refined" in filename:
+        refinement = "refined"
+    else:
+        refinement = "unrefined"
+        
+    return binning_method, refinement
+
+def make_simplified_report_yaml(output_file, data_df, binning_method, refinement):
     """
     Create a simplified YAML file for MultiQC from GTDB-Tk data,
     showing only specific fields and extracting the lowest 2 taxonomic ranks.
@@ -32,16 +54,11 @@ def make_simplified_report_yaml(output_file, data_df):
     if 'classification' in data_df.columns:
         data_df['simplified_taxonomy'] = data_df['classification'].apply(extract_lowest_taxonomy)
     
-    #if 'fastani_taxonomy' in data_df.columns:
-        #data_df['simplified_fastani_taxonomy'] = data_df['fastani_taxonomy'].apply(extract_lowest_taxonomy)
-        
     # Select only the requested columns
     columns_to_keep = [
         'user_genome',
         'simplified_taxonomy',  # Our newly created column
-        #'fastani_reference',
         'fastani_reference_radius',
-        'simplified_fastani_taxonomy',  # Our newly created column
         'fastani_ani',
         'fastani_af',
         'classification_method',
@@ -57,9 +74,6 @@ def make_simplified_report_yaml(output_file, data_df):
     if 'simplified_taxonomy' in simplified_df.columns:
         simplified_df.rename(columns={'simplified_taxonomy': 'classification'}, inplace=True)
     
-    #if 'simplified_fastani_taxonomy' in simplified_df.columns:
-        #simplified_df.rename(columns={'simplified_fastani_taxonomy': 'fastani_taxonomy'}, inplace=True)
-    
     # Create headers dictionary based on selected GTDB-Tk columns
     headers = {
         'user_genome': {
@@ -70,19 +84,11 @@ def make_simplified_report_yaml(output_file, data_df):
             'title': 'Classification',
             'description': 'Lowest 2 taxonomic levels'
         },
-        'fastani_reference': {
-            'title': 'FastANI Reference',
-            'description': 'Reference genome used for FastANI comparison'
-        },
         'fastani_reference_radius': {
             'title': 'FastANI Ref Radius',
             'description': 'Radius used for FastANI reference comparison',
             'format': '{:,.1f}'
         },
-        #'fastani_taxonomy': {
-            #'title': 'FastANI Taxonomy',
-            #'description': 'Lowest 2 taxonomic levels of FastANI reference'
-        #},
         'fastani_ani': {
             'title': 'ANI',
             'description': 'Average Nucleotide Identity value from FastANI',
@@ -126,14 +132,33 @@ def make_simplified_report_yaml(output_file, data_df):
         # Add the data to the YAML dictionary
         data_yaml[key] = row_dict
     
+    # Create the YAML ID to match your MultiQC config
+    yaml_id = f'gtdb_summary_{refinement}_{binning_method}'
+    
+    # Get proper capitalization for display names
+    if binning_method == "metabat2":
+        display_name = "MetaBat2"
+    elif binning_method == "maxbin2":
+        display_name = "MaxBin2"
+    elif binning_method == "dastool":
+        display_name = "DasTool"
+    else:
+        display_name = binning_method.capitalize()
+        
+    # Create the section name to match your MultiQC config
+    section_name = f'GTDB Taxonomic Classifications of {refinement.capitalize()} {display_name} Bins'
+    
+    # Create the description to match your MultiQC config
+    description = f'Taxonomic Classification of {display_name} genome bins using GTDB'
+    
     # Create the full YAML dictionary with names matching your MultiQC config
     yaml_dict = {
-        'id': 'gtdb_summary',  # Match the ID in your MultiQC config
-        'section_name': 'GTDB Taxonomic Classifications',  # Match the section_name in your config
-        'description': 'Taxonomic Classification of genome bins using GTDB',  # Match the description in your config
+        'id': yaml_id,
+        'section_name': section_name,
+        'description': description,
         'plot_type': 'table',
         'pconfig': {
-            'id': 'gtdb_summary',  # Match the ID in your MultiQC config
+            'id': yaml_id,
             'sort_rows': False,
             'scale': False,
         },
@@ -144,6 +169,8 @@ def make_simplified_report_yaml(output_file, data_df):
     # Write to a YAML file
     with open(output_file, 'w') as file:
         yaml.dump(yaml_dict, file, sort_keys=False)
+    
+    print(f"Created report for {display_name} ({refinement}) with ID: {yaml_id}")
     
     return len(simplified_df)
 
@@ -158,11 +185,14 @@ def main():
     args = parse_args()
     
     try:
+        # Extract binning method and refinement status from the input filename
+        binning_method, refinement = extract_binning_info(os.path.basename(args.input))
+        
         # Read the GTDB-Tk TSV file
         gtdbtk_df = pd.read_csv(args.input, sep='\t')
         
         # Generate simplified report YAML file for MultiQC report
-        make_simplified_report_yaml(args.output, gtdbtk_df)
+        make_simplified_report_yaml(args.output, gtdbtk_df, binning_method, refinement)
         
         # Verify the YAML can be read back
         with open(args.output, 'r') as f:
