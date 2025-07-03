@@ -22,14 +22,15 @@ UnO is an mNGS bioinformatics pipeline that supports **The UnO Project**. nf-cor
 5. Co-assemble mNGS reads from outbreak dataset into single outbreak assembly ([`Megahit`](https://github.com/voutcn/megahit))
 6. Preparation for binning of metagenomic co-assembly with ([`Bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)). Outbreak co-assembly is used to create an index which individual reads are mapped to determine depth information for downstream binning tools. 
 7. ([`MetaBat2`](https://bitbucket.org/berkeleylab/metabat/src/master/)) and ([`MaxBin2`](https://sourceforge.net/projects/maxbin2/)) are used to bin MAGs.
-8. ([`DAStool`](https://github.com/cmks/DAS_Tool)) is used to refine bins.
-9. ([`Bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)) is used to map individual reads back to refined bins to identify MAGs in common across outbreak samples.
-10. ([`CheckM`](https://ecogenomics.github.io/CheckM/)) is used to asses quality of refined bins. 
-11. ([`MultiQC`](http://multiqc.info/)) is used to summarize some of the findings and software versions.
+8. ([`DAStool`](https://github.com/cmks/DAS_Tool)) is optionally used to refine bins.
+9. ([`Bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)) is used to map individual reads back to bins to identify MAGs in common across outbreak samples.
+10. ([`CheckM`](https://ecogenomics.github.io/CheckM/)) is used to asses quality of bins.
+11. ['GTDB-tk'] (https://github.com/Ecogenomics/GTDBTk) is used to assign taxonomy to bins. 
+12. ([`MultiQC`](http://multiqc.info/)) is used to summarize some of the findings and software versions.
 
 ## Workflow
 <p align="center">
-  <img src="images/nfuno_workflow.svg" alt="nf-uno workflow" width="750">
+  <img src="images/nfunodiagram070325.svg" alt="nf-uno workflow" width="750">
 </p>
 
 ## Usage
@@ -46,14 +47,16 @@ When Nextflow and conda are installed, clone the pipeline:
 git clone https://github.com/uel3/nf-uno
 ```
 
-Next, test it on the minimal dataset provided using the test.config:
+Next, run a minimal on the minimal dataset provided using the test.config:
 
 ```console
 nextflow run nf-uno -profile conda,test --outdir <OUTDIR>
 ```
+To run a full test of all tools in the pipeline with the minimal dataset, use the test_full.config:
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):-->
+```console
+nextflow run nf-uno -profile conda,test_full --outdir <OUTDIR>
+```
 
 Next, prepare a samplesheet with your input data that looks as follows:
 
@@ -70,8 +73,6 @@ Each row represents a pair of fastq files (paired end).
 
 
 Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
 nextflow run nf-uno \
