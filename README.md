@@ -85,7 +85,7 @@ nextflow run nf-uno \
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
 > see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
-For more details and further functionality, please refer to the [usage documentation](https://github.com/uel3/nf-core-uno/blob/master/docs/usage.md) and the [parameter documentation](https://github.com/uel3/nf-uno/blob/master/docs/parameters.md).
+For more details and further functionality, please refer to the [usage documentation](https://github.com/uel3/nf-core-uno/blob/main/docs/usage.md) and the [parameter documentation](https://github.com/uel3/nf-uno/blob/main/docs/parameters.md).
 
 ## Pipeline output
 
@@ -145,8 +145,8 @@ copyright interest.
 ### Privacy Notice
 This repository contains only non-sensitive, publicly available data and
 information. All material and community participation is covered by the
-[Disclaimer](https://github.com/CDCgov/template/blob/master/DISCLAIMER.md)
-and [Code of Conduct](https://github.com/CDCgov/template/blob/master/code-of-conduct.md).
+[Disclaimer](https://github.com/CDCgov/template/blob/masin/DISCLAIMER.md)
+and [Code of Conduct](https://github.com/CDCgov/template/blob/main/code-of-conduct.md).
 For more information about CDC's privacy policy, please visit [http://www.cdc.gov/other/privacy.html](https://www.cdc.gov/other/privacy.html).
 
 ### Contributing Notice
