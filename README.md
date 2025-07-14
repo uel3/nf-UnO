@@ -89,7 +89,7 @@ For more details and further functionality, please refer to the [usage documenta
 
 ## Pipeline output
 
-Current output of the draft UnO output consists of the user specified <OUTDIR> with following directories: Assembly, FastQC, GenomeBinning, multiqc, pipeline_info, QC_shortreads, and Trimmomatic. 
+Current output of the draft UnO output consists of the user specified <OUTDIR> with following directories: Assembly, FastQC, GenomeBinning, MIDAS2, multiqc, pipeline_info, QC_shortreads, Taxonomy, and Trimmomatic. 
 For more details about the output files and reports, please refer to the
 [output documentation](https://github.com/uel3/nf-uno/wiki/Output).
 <p align="center">
