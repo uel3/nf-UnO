@@ -25,7 +25,7 @@ UnO is an mNGS bioinformatics pipeline that supports **The UnO Project**. nf-cor
 8. ([`DAStool`](https://github.com/cmks/DAS_Tool)) is optionally used to refine bins.
 9. ([`Bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)) is used to map individual reads back to bins to identify MAGs in common across outbreak samples.
 10. ([`CheckM`](https://ecogenomics.github.io/CheckM/)) is used to asses quality of bins.
-11. ['GTDB-tk'] (https://github.com/Ecogenomics/GTDBTk) is used to assign taxonomy to bins. 
+11. (['GTDB-tk'] (https://github.com/Ecogenomics/GTDBTk)) is used to assign taxonomy to bins. 
 12. ([`MultiQC`](http://multiqc.info/)) is used to summarize some of the findings and software versions.
 
 ## Workflow
