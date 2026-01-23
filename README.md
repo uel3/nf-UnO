@@ -50,12 +50,12 @@ git clone https://github.com/uel3/nf-uno
 Next, run a minimal on the minimal dataset provided using the test.config:
 
 ```console
-nextflow run nf-uno -profile conda,test --outdir <OUTDIR>
+nextflow run uel3/nf-uno -profile conda,test --outdir <OUTDIR>
 ```
 To run a full test of all tools in the pipeline with the minimal dataset, use the test_full.config:
 
 ```console
-nextflow run nf-uno -profile conda,test_full --outdir <OUTDIR>
+nextflow run uel3/nf-uno -profile conda,test_full --outdir <OUTDIR>
 ```
 
 Next, prepare a samplesheet with your input data that looks as follows:
@@ -75,7 +75,7 @@ Each row represents a pair of fastq files (paired end).
 Now, you can run the pipeline using:
 
 ```bash
-nextflow run nf-uno \
+nextflow run uel3/nf-uno \
    -profile <conda/institute> \
    --input samplesheet.csv \
    --outdir <OUTDIR>
