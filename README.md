@@ -87,6 +87,43 @@ nextflow run uel3/nf-uno \
 
 For more details and further functionality, please refer to the [usage documentation](https://github.com/uel3/nf-core-uno/blob/main/docs/usage.md) and the [parameter documentation](https://github.com/uel3/nf-uno/blob/main/docs/parameters.md). For an example analysis with output please refer to the [example usage](https://github.com/uel3/nf-UnO/blob/main/docs/example_usage.md)
 
+
+## Updated notes for Running the Full Test Workflow
+
+1. **MultiQC container**
+   - The `nextflow.config` file has been updated to reference a valid **MultiQC container image** for all processes that require MultiQC. No additional action is needed.
+
+2. **Test samplesheet**
+   - The test samplesheet has been updated so that all folder paths point to the current test data location:
+
+3. **GTDB database configuration**
+   - After downloading the GTDB database, update the `gtdb_db` parameter in:
+     - `conf/test_full.config`
+     - or set it as an argument `--gtdb_db`
+   - Set the parameter to the correct path of the downloaded GTDB database (the **extracted** directory, not the original compressed .gz file).
+  > **Important:** The extracted GTDB directory contains a subfolder named `skani`. GTDB-Tk expects this directory to be named `fastani`. Rename it as follows:
+
+```bash
+mv skani fastani 
+```
+
+4. **GTDBTK_CLASSIFYWF**
+   - GTDB-Tk uses TMPDIR by default, previously it ended up on NFS, now we force it to local disk → no more tempdir crash
+
+5. **Running the full test workflow**
+   - Use the `singularity` profile.
+   - Disable the `midas2` process.
+   - The following command runs a full test of all tools in the pipeline using the provided test dataset, assuming you're in the same folder where you cloned the repo. Omit the `--gtdb_db` argument if it's the first time you run the pipeline:
+
+   ```bash
+   nextflow run main.nf (or uel3/nf-uno) \
+     -profile singularity,test_full \
+     --outdir <output_folder> \
+     --skip_midas2 \
+     --input test/samplesheet_test.csv \
+     --gtdb_db <path to the extracted database>
+
+
 ## Pipeline output
 
 Current output of the draft UnO output consists of the user specified <OUTDIR> with following directories: Assembly, FastQC, GenomeBinning, MIDAS2, multiqc, pipeline_info, QC_shortreads, Taxonomy, and Trimmomatic. 
