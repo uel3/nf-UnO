@@ -1,6 +1,7 @@
 process GTDBTK_CLASSIFYWF {
     tag "${prefix}"
     label 'process_medium'
+    // errorStrategy 'ignore'
     
     // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
     conda "${moduleDir}/environment.yml"
@@ -35,17 +36,30 @@ process GTDBTK_CLASSIFYWF {
     prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    export GTDBTK_DATA_PATH="\${PWD}/database"
+    # If params.gtdb_db is defined, use it; otherwise default to ${PWD}/database
+    if [ ! -z "${params.gtdb_db}" ]; then
+        export GTDBTK_DATA_PATH="${params.gtdb_db}"
+    else
+        export GTDBTK_DATA_PATH="${PWD}/database"
+    fi
+
+
     if [ "${pplacer_scratch}" != "" ] ; then
         mkdir pplacer_tmp
     fi
+
+    # Make temp local-ish and predictable
+    export TMPDIR="/tmp/${USER}/gtdbtk_${task.hash}"
+    export TEMP="\$TMPDIR"
+    export TMP="\$TMPDIR"
+    mkdir -p "\$TMPDIR"
 
     gtdbtk classify_wf \\
         $args \\
         --genome_dir bins \\
         --prefix "gtdbtk.${prefix}" \\
         --out_dir "\${PWD}" \\
-        --cpus $task.cpus \\
+        --cpus 1 \\
         $pplacer_scratch
 
     ## If mash db given, classify/ and identify/ directories won't be created
