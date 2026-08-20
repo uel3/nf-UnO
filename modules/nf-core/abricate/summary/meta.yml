@@ -1,0 +1,68 @@
+name: abricate_summary
+description: Screen assemblies for antimicrobial resistance against multiple
+  databases
+keywords:
+  - bacteria
+  - assembly
+  - antimicrobial reistance
+tools:
+  - abricate:
+      description: Mass screening of contigs for antibiotic resistance genes
+      homepage: https://github.com/tseemann/abricate
+      documentation: https://github.com/tseemann/abricate
+      tool_dev_url: https://github.com/tseemann/abricate
+      licence:
+        - "GPL v2"
+      identifier: biotools:ABRicate
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test', single_end:false ]
+    - reports:
+        type: file
+        description: FASTA, GenBank or EMBL formatted file
+        pattern: "*.{fa,fasta,fna,fa.gz,fasta.gz,fna.gz,gbk,gbk.gz,embl,embl.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1929" # FASTA
+          - edam: "http://edamontology.org/format_1936" # GenBank
+          - edam: "http://edamontology.org/format_2204" # EMBL format (XML)
+output:
+  report:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
+      - "*.txt":
+          type: file
+          description: Tab-delimited report of aggregated results
+          pattern: "*.{txt}"
+          ontologies:
+            - edam: "http://edamontology.org/format_2330" # Textual format
+  versions_abricate_summary:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - abricate:
+          type: string
+          description: The name of the tool
+      - abricate --version 2>&1 | sed 's/^.*abricate //':
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - abricate:
+          type: string
+          description: The name of the tool
+      - abricate --version 2>&1 | sed 's/^.*abricate //':
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@rpetit3"
+maintainers:
+  - "@rpetit3"
