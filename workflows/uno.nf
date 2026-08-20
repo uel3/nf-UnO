@@ -64,8 +64,8 @@ include { GTDB_MULTIQC_REPORT           } from '../modules/local/gtdb_multiqc_re
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { ABRICATE_RUN				} from '../modules/nf-core/abricate/run/main'
-include { ABRICATE_SUMMARY			} from '../modules/nf-core/abricate/summary/main'
+include { ABRICATE_RUN				            } from '../modules/nf-core/abricate/run/main'
+include { ABRICATE_SUMMARY			            } from '../modules/nf-core/abricate/summary/main'
 include { ARIA2                                 } from '../modules/nf-core/aria2/main'
 include { FASTQC as FASTQC_RAW                  } from '../modules/nf-core/fastqc/main'
 include { FASTQC as FASTQC_TRIMMED              } from '../modules/nf-core/fastqc/main'
@@ -318,17 +318,16 @@ workflow UNO {
     /*
     * ABRICATE_RUN
     */
-	    //ch_binning_results_bins.view { meta. assembly -> "META-${meta} ASSEMBLY=${assembly}" }
-	    //ch_abricate_input = ch_binning_results_bins.flatMap { meta, bins -> bins.collect { bin -> tuple(meta, bin) } }
-	    ch_abricate_input = ch_binning_results_bins.flatMap { meta, bins -> bins.collect { bin -> 
-		def bin_name = bin.baseName
-		def meta_new = meta + [
-			//id: "${meta.id}_${bin_name}",
-			id: "ABRICATE_${bin_name}",
-			bin: bin_name
-		]
-		tuple(meta_new, bin)
-	      }
+	    ch_abricate_input = ch_binning_results_bins.flatMap { meta, bins -> bins.collect 
+            { bin -> 
+		        def bin_name = bin.baseName
+		        def meta_new = meta + [
+		        	//id: "${meta.id}_${bin_name}",
+		        	id: "ABRICATE_${bin_name}",
+		        	bin: bin_name
+		        ]
+		        tuple(meta_new, bin)
+	         }
 	    }
 	    ABRICATE_RUN(
 		ch_abricate_input,
@@ -337,16 +336,15 @@ workflow UNO {
     /*
     * ABRICATE_SUMMARY
     */
-        //ch_abricate_reports = ABRICATE_RUN.out.report.collect()
         ch_abricate_summary_input = ABRICATE_RUN.out.report 
-            .map { meta, report -> report}
-            .collect()
-            .map { reports ->
-                    tuple(
-                        [id: 'all_bins'],
-                        reports
-                    )
-                }
+        .map { meta, report -> report}
+        .collect()
+        .map { reports ->
+            tuple(
+                [id: 'all_bins'],
+                 reports
+            )
+        }
 	    ABRICATE_SUMMARY(
 		    ch_abricate_summary_input
 	    )
