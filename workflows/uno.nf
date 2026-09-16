@@ -418,7 +418,7 @@ workflow UNO {
     if (!params.skip_binning){ch_multiqc_files = ch_multiqc_files.mix(DEPTHS.out.multiqc_heatmap.collect().ifEmpty([]))}
     if (!params.skip_binqc){ch_multiqc_files = ch_multiqc_files.mix(CHECKM_MULTIQC_REPORT.out.checkm_mqc_report.collect().ifEmpty([]))}
     if (!params.skip_gtdbtk){ch_multiqc_files = ch_multiqc_files.mix(GTDB_MULTIQC_REPORT.out.gtdb_mqc_report.collect().ifEmpty([]))}
-    ch_multiqc_files = ch_multiqc_files.mix(ch_amrfinderplus_report.collect{it[1]}.ifEmpty([]))
+    //if (!params.skip_binning && !params.skip_amrfinderplus){ch_multiqc_files = ch_multiqc_files.mix(ch_amrfinderplus_report.collect{it[1]}.ifEmpty([]))}
 
     MULTIQC (
         ch_multiqc_files.collect(),
