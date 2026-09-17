@@ -70,7 +70,10 @@ include { FASTQC as FASTQC_TRIMMED              } from '../modules/nf-core/fastq
 include { TRIMMOMATIC                           } from '../modules/nf-core/trimmomatic/main'
 include { MULTIQC                               } from '../modules/nf-core/multiqc/main'
 include { MEGAHIT                               } from '../modules/nf-core/megahit/main'
+include { AMRFINDERPLUS_UPDATE                  } from '../modules/nf-core/amrfinderplus/update/main'
+include { AMRFINDERPLUS_RUN                     } from '../modules/nf-core/amrfinderplus/run/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS           } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+
 
 /* --  Create channel for host reference  -- */
 if ( params.host_genome ) {
@@ -220,30 +223,83 @@ workflow UNO {
             def meta_new = meta - meta.subMap('run')
             [ meta_new, reads ]
         }
-    
+
     /*
     CO-ASSEMBLY OF TRIMMED READS 
     */
-    if (params.coassemble_group) {
-            // short reads
-            // group and set group as new id
-        ch_short_reads_grouped = ch_short_reads_assembly
-                    .map { meta, reads -> [ meta.group, meta, reads ] }
-                    .groupTuple(by: 0)
-                    .map { group, metas, reads ->
-                        //params.bbnorm
-                        def meta         = [:]
-                        meta.id          = "group-$group"
-                        meta.group       = group
-                        [ meta, reads.collect { it[0] }, reads.collect { it[1] } ]
-                    }
-    } else {
-            ch_short_reads_grouped = ch_short_reads_assembly
-                .map { meta, reads -> [ meta, [ reads[0] ], [ reads[1] ] ] }
+
+
+    if (params.combinations){
+
+        // read in combinations file
+        combinations_file = file('/home/rsainsbury/workspace/uno/samplesheets/all_2-3set_combinations.txt')
+        combinations_ch = Channel.fromPath(combinations_file)
+            .splitText()
+            .map { line ->
+                def fields = line.trim().split(/\t/)
+                def group = fields[0]
+                def samples = fields[1].split(',') as List
+                tuple(group, samples)
+            }
+
+        // remap the ch_short_reads_assembly channel so that that it is formatted correctly for joining to the combinations channel
+        reads_by_sample_ch = ch_short_reads_assembly.map { meta, reads ->
+            tuple(meta["id"], reads)
+        }
+
+        // flattening the combinations channel so that there is one row for each sample and group combination
+        combinations_ch = combinations_ch.flatMap { group, samples ->
+            samples.collect { sample ->
+                tuple(sample, group)
+            }
+        }
+
+        // combining the combinations channel with the reads by sample channel to get a channel where each row is a one group and pair of reads
+        group_reads_ch = combinations_ch
+            .combine(reads_by_sample_ch, by: 0)
+            .map { sample, group, reads ->
+                tuple(group, reads)
+            }
+
+        // grouping everything together based on group and splitting reads up to be formatted correctly [meta,[read 1s],[read 2s]]
+        ch_short_reads_grouped = group_reads_ch
+            .groupTuple()
+            .map { group, reads ->
+                def meta         = [:]
+                meta.id          = "group-$group"
+                meta.group       = group
+
+                tuple(meta, reads.collect { it[0] }, reads.collect { it[1] })
+            }
     }
-            // long reads
-            // group and set group as new id
-    
+    else{
+        if (params.coassemble_group) {
+                // short reads
+                // group and set group as new id
+            ch_short_reads_grouped = ch_short_reads_assembly
+                        .map { meta, reads -> [ meta.group, meta, reads ] }
+                        .groupTuple(by: 0)
+                        .map { group, metas, reads ->
+                            //params.bbnorm
+                            def meta         = [:]
+                            meta.id          = "group-$group"
+                            meta.group       = group
+                            [ meta, reads.collect { it[0] }, reads.collect { it[1] } ]
+                        }
+        } else {
+                ch_short_reads_grouped = ch_short_reads_assembly
+                    .map { meta, reads -> [ meta, [ reads[0] ], [ reads[1] ] ] }
+        }
+                // long reads
+                // group and set group as new id
+
+    }
+
+
+
+    // Get file names from channel
+
+
     ch_assemblies = Channel.empty()
     MEGAHIT ( ch_short_reads_grouped )
             ch_megahit_assemblies = MEGAHIT.out.assembly
@@ -354,8 +410,42 @@ workflow UNO {
                 GTDB_MULTIQC_REPORT(ch_gtdbtk_summary)
                 ch_gtdb_summary_report =GTDB_MULTIQC_REPORT.out.gtdb_mqc_report
                 ch_versions = ch_versions.mix(GTDB_MULTIQC_REPORT.out.versions.first())
+
+        /*
+        * Identifying AMR genes in Bins using AMRFinder Plus
+        */ 
+            if ( !params.skip_amrfinderplus ){
+
+                // Run AMRFinder Plus update to get database
+                ch_amrfinderplus_db = Channel.empty()
+                AMRFINDERPLUS_UPDATE()
+                ch_amrfinderplus_db = AMRFINDERPLUS_UPDATE.out.db
+
+                // this transforms the ch_input_for_postbinning channel from [[metadata],[list of paths]] to [list of [metadata, path]] while adding the bin id to metadata
+                ch_amrfinderplus_bins = ch_input_for_postbinning
+                                    .flatMap { meta, bins ->
+                                        bins.collect { fasta ->
+                                            def newMeta = meta + [
+                                                bin_id: fasta.name.tokenize('.')[1] // add the bin id to the metadata for each respective bin
+                                            ]
+                                            tuple(newMeta, fasta)
+                                        }
+                                    }
+                
+                // Run AMRFinder Plus on all bins using the database downloaded above                                
+                AMRFINDERPLUS_RUN(
+                                ch_amrfinderplus_bins,
+                                ch_amrfinderplus_db
+                            )
+                ch_amrfinderplus_report = AMRFINDERPLUS_RUN.out.report.map{ meta, file -> file}
+                ch_versions = ch_versions.mix(AMRFINDERPLUS_RUN.out.tool_version)
+                ch_versions = ch_versions.mix(AMRFINDERPLUS_RUN.out.db_version)
+
+            }
         }
-    
+
+
+
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
@@ -381,6 +471,8 @@ workflow UNO {
     if (!params.skip_binning){ch_multiqc_files = ch_multiqc_files.mix(DEPTHS.out.multiqc_heatmap.collect().ifEmpty([]))}
     if (!params.skip_binqc){ch_multiqc_files = ch_multiqc_files.mix(CHECKM_MULTIQC_REPORT.out.checkm_mqc_report.collect().ifEmpty([]))}
     if (!params.skip_gtdbtk){ch_multiqc_files = ch_multiqc_files.mix(GTDB_MULTIQC_REPORT.out.gtdb_mqc_report.collect().ifEmpty([]))}
+    ch_multiqc_files = ch_multiqc_files.mix(ch_amrfinderplus_report.collect{it[1]}.ifEmpty([]))
+
     MULTIQC (
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
