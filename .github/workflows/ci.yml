@@ -33,7 +33,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Conda setup
-        if: contains(inputs.profile, 'conda')
         uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5 # v4
         with:
           auto-update-conda: true
