@@ -133,6 +133,12 @@ For more details about the output files and reports, please refer to the
   <img src="images/mqc_gen_stats.png" alt="General Stats Table with FastQC Results" width="750">
 </p>
 
+
+## Running on Combinations of Samples
+
+The pipeline can be run on combinations of samples instead of all samples in the sample sheet at once. The output is saved as usual but with the combination name instead of the group name. This option is not compatible with multiple groups. The tag `--run_combinations` must be set to true and the path to a combinations .txt file needs to be specified using the parameter `--combinations_file`. This file is a tab delimited file with no header and two columns: the first column is a combination name, and the second is a comma-separated list of sample names that match to names in the sample sheet. 
+
+
 ## Credits
 
 uel3/nf-uno is adapted by Candace Cole from nf-core/mag, written by Hadrien Gourlé at SLU, Daniel Straub and Sabrina Krakau at the Quantitative Biology Center (QBiC).
