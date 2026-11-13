@@ -17,11 +17,10 @@ workflow BINNING_PREP {
 
     BOWTIE2_BUILDASSEMBLYINDEX (assemblies)
     // build bowtie2 index from coassembly of all reads using combinations
-    if(params.combinations){
+    if(params.run_combinations){
 
         // read in combinations file
-        combinations_file = file('/home/rsainsbury/workspace/uno/samplesheets/all_2-3set_combinations.txt')
-        combinations_ch = Channel.fromPath(combinations_file)
+        combinations_ch = Channel.fromPath(params.combinations_file)
             .splitText()
             .map { line ->
                 def fields = line.trim().split(/\t/)
