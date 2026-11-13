@@ -14,15 +14,54 @@ workflow BINNING_PREP {
     reads                // channel: [ val(meta), [ reads ] ]
 
     main:
-    // build bowtie2 index from coassembly of all reads using group 
+
     BOWTIE2_BUILDASSEMBLYINDEX (assemblies)
-    if (params.binning_map_mode == 'group'){
+    // build bowtie2 index from coassembly of all reads using combinations
+    if(params.run_combinations){
+
+        // read in combinations file
+        combinations_ch = Channel.fromPath(params.combinations_file)
+            .splitText()
+            .map { line ->
+                def fields = line.trim().split(/\t/)
+                def group = fields[0]
+                def samples = fields[1].split(',') as List
+                tuple(group, samples)
+            }
+
+        // remap the ch_short_reads_assembly channel so that that it is formatted correctly for joining to the combinations channel
+        reads_by_sample_ch = reads.map { meta, reads ->
+            tuple(meta["id"], meta, reads)
+        }
+
+        // flattening the combinations channel so that there is one row for each sample and group combination
+        combinations_ch = combinations_ch.flatMap { group, samples ->
+            samples.collect { sample ->
+                tuple(sample, group)
+            }
+        }
+
+        // combining the combinations channel with the reads by sample channel to get a channel where each row is a one group and pair of reads
+        group_reads_ch = combinations_ch
+            .combine(reads_by_sample_ch, by: 0)
+            .map { sample, group, reads_meta, reads ->
+                tuple(group, reads_meta, reads)
+            }
+
+        ch_bowtie2_input = BOWTIE2_BUILDASSEMBLYINDEX.out.bt2_index
+            .map {meta, assembly, index -> [meta.group, meta, assembly, index ] }
+            .combine(group_reads_ch, by:0)
+            .map {group, assembly_meta, assembly, index, reads_meta, reads -> [assembly_meta, assembly, index, reads_meta, reads ]}
+
+    // build bowtie2 index from coassembly of all reads using group 
+    } else if (params.binning_map_mode == 'group'){
         // combine assemblies with reads of all samples
         ch_reads_bowtie2 = reads.map{ meta, reads -> [ meta.group, meta, reads] }
         ch_bowtie2_input = BOWTIE2_BUILDASSEMBLYINDEX.out.bt2_index
             .map {meta, assembly, index -> [meta.group, meta, assembly, index ] }
             .combine(ch_reads_bowtie2, by:0)
             .map {group, assembly_meta, assembly, index, reads_meta, reads -> [assembly_meta, assembly, index, reads_meta, reads ]}
+
     } else {
         // i.e. --binning_map_mode 'own'
         // combine assemblies (not co-assembled) with reads from own sample
